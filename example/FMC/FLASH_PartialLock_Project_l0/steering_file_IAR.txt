@@ -1,0 +1,2 @@
+show S32Sum
+show CalculateTest

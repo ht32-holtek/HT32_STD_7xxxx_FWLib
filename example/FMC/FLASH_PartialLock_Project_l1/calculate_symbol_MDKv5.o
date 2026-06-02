@@ -1,0 +1,3 @@
+#<SYMDEFS># ARM Linker, 5060750: Last Updated: Tue Apr 22 09:47:21 2025
+0x00004001 T CalculateTest
+0x00004027 T S32Sum

@@ -1,0 +1,44 @@
+;/*---------------------------------------------------------------------------------------------------------*/
+;/* Holtek Semiconductor Inc.                                                                               */
+;/*                                                                                                         */
+;/* Copyright (C) Holtek Semiconductor Inc.                                                                 */
+;/* All rights reserved.                                                                                    */
+;/*                                                                                                         */
+;/*-----------------------------------------------------------------------------------------------------------
+;  File Name        : linker.lin
+;  Version          : V1.0
+;  Date             : 2025-01-06
+;  Description      : Linker Control File (scatter-loading).
+;-----------------------------------------------------------------------------------------------------------*/
+
+AP 0x00000000
+{
+  AP +0
+  {
+    *.o (RESET, +FIRST)
+    * (+RO)
+  }
+  RAM 0x20000000
+  {
+    .ANY (+RW +ZI)
+  }
+}
+
+;/* Set the parameter's location in Flash ------------------------------------------------------------------*/
+ICODE_LOAD 0x00004000 0x1000
+{
+  ICODE_EXEC +0
+  {
+    icode.o (+XO)
+    icode.o (.constdata)
+  }
+}
+
+DCODE_LOAD 0x00005000 0x1000
+{
+  DCODE_EXEC +0
+  {
+    dcode.o (+RO)
+  }
+}
+
