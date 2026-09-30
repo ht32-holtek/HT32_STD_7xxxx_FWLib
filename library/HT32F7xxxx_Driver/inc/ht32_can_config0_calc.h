@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32_can_config0_calc.h
- * @version $Rev:: 389          $
- * @date    $Date:: 2025-09-25 #$
+ * @version $Rev:: 526          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   The CAN config calculation features.
  *************************************************************************************************************
  * @attention
@@ -46,247 +46,701 @@
 #endif
 
 #define _HTCFG_CF0_CK_CAN                         (_HTCFG_CAN_CORE_CLK / (1 << HTCFG_CAN_CF0_CLK_DIV))
+#define HTCFG_CAN_CF0_ERROR_RATE_PERCENT          (HTCFG_CAN_CF0_ERROR_RATE / 100)
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (25UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 25
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 25
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (24UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 24
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 24
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (23UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 23
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 23
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (22UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 22
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 22
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (21UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 21
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 21
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (20UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 20
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 20
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (19UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 19
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 19
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (18UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 18
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 18
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (17UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 17
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 17
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (16UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 16
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 16
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (15UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 15
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 15
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (14UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 14
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 14
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (13UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 13
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 13
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (12UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 12
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 12
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (11UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 11
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 11
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (10UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 10
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 10
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (9UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 9
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 9
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
   #undef _TMP_CF0_NBT
+  #undef _TMP_CF0_PRESCALER
   #define _TMP_CF0_NBT                            (8UL)
-  #if (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT > 0)
-  #if ((_HTCFG_CF0_CK_CAN / (_HTCFG_CF0_CK_CAN / HTCFG_CAN_CF0_BAUDRATE / _TMP_CF0_NBT)) / _TMP_CF0_NBT <= HTCFG_CAN_CF0_BAUDRATE)
-    #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
-    #if (CAN_CF0_CALC_DEBUG == 1)
-    #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 8
+
+  /* Compute the prescaler using integer-based rounding:                                                    */
+  /* Prescaler = round(CAN_CLK / (BAUD * NBT))                                                              */
+  /* = ((2 * CAN_CLK / (BAUD * NBT)) + 1) / 2                                                               */
+  /* This implements true 4-round-5-up rounding behavior entirely with integer math,                        */
+  /* avoiding the use of floating-point arithmetic while still providing accurate results.                  */
+  #define _TMP_CF0_PRESCALER     (((2 * _HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * _TMP_CF0_NBT)) + 1) / 2)
+
+  #if (_TMP_CF0_PRESCALER > 0)
+    #undef _TMP_CF0_ERR_PPM
+    #undef _TMP_CF0_BAUD_ACT
+    /* Calculate the actual baud rate based on the selected nominal bit time (_TMP_CF0_NBT) */ 
+    #define _TMP_CF0_BAUD_ACT (_HTCFG_CF0_CK_CAN / _TMP_CF0_PRESCALER / _TMP_CF0_NBT)
+
+    /* Calculate the error in ppm (parts per million) by comparing the actual baud rate with the target baud rate */
+    /* If the actual baud rate is higher than the target, calculate the error as the difference */
+    #if (_TMP_CF0_BAUD_ACT > HTCFG_CAN_CF0_BAUDRATE)
+      #define _TMP_CF0_ERR_PPM (((_TMP_CF0_BAUD_ACT      - HTCFG_CAN_CF0_BAUDRATE) * 10000) / HTCFG_CAN_CF0_BAUDRATE)
+    #else
+      /* Otherwise, calculate the error as the difference in the opposite case */
+      #define _TMP_CF0_ERR_PPM (((HTCFG_CAN_CF0_BAUDRATE - _TMP_CF0_BAUD_ACT)      * 10000) / HTCFG_CAN_CF0_BAUDRATE)
     #endif
-  #endif
+
+    /* Check if the error is within the allowed error rate (HTCFG_CAN_CF0_ERROR_RATE)                       */
+    /* If the error is within the range, set the nominal bit time to the current value (_TMP_CF0_NBT)       */
+    #if (_TMP_CF0_ERR_PPM <= HTCFG_CAN_CF0_ERROR_RATE_PERCENT)
+      #define HTCFG_CAN_CF0_NOMINAL_BIT_TIME _TMP_CF0_NBT
+      #if (CAN_CF0_CALC_DEBUG == 1)
+        #warning Set HTCFG_CAN_CF0_NOMINAL_BIT_TIME as 8
+      #endif
+    #endif
   #endif
 #endif
 
 #ifndef HTCFG_CAN_CF0_NOMINAL_BIT_TIME
-  #error Can not find the suitable Nominal Bit Time setting. Try to increase CK_CAN or lower the CAN Baudrate.
+  #error Can not find the suitable Nominal Bit Time setting. \
+       1. The current PCLK frequency cannot be evenly divided to achieve a valid Bit Time. \
+       2. The gap between PCLK and target Baud Rate is too large, causing the required Prescaler value to exceed the hardware register limit. \
+       Please adjust the PCLK or system clock and try again.
 #endif
 
 /* define value for CAN_Init()                                                                              */
-#define CAN_CONF0_PRESCALER                       (_HTCFG_CF0_CK_CAN / (HTCFG_CAN_CF0_BAUDRATE * HTCFG_CAN_CF0_NOMINAL_BIT_TIME))
+#define CAN_CONF0_PRESCALER                       _TMP_CF0_PRESCALER
 #define CAN_CONF0_BIT_TIME_TSEG1                  (HTCFG_CAN_CF0_NOMINAL_BIT_TIME - (HTCFG_CAN_CF0_NOMINAL_BIT_TIME * HTCFG_CAN_CF0_SAMPLE_POINT) / 100)
 #define CAN_CONF0_BIT_TIME_TSEG0                  (HTCFG_CAN_CF0_NOMINAL_BIT_TIME - 1 - CAN_CONF0_BIT_TIME_TSEG1)
 #define CAN_CONF0_BIT_TIME_SJW                    (HTCFG_CAN_CF0_BIT_TIME_SJW)
@@ -342,6 +796,7 @@
 /* CAN Config Check function                                                                                */
 /*----------------------------------------------------------------------------------------------------------*/
 #if (HTCFG_CAN_CONF_CHECK_ENABLE == 1)
+#include <stdlib.h>
 __STATIC_INLINE void CAN_Config0_Check(void)
 {
   u32 Core_Clock  = _HTCFG_CAN_CORE_CLK;
@@ -354,24 +809,29 @@ __STATIC_INLINE void CAN_Config0_Check(void)
   u32 NBT         = (1 + TSEG0 + TSEG1);
   u32 SamplePoint = ((NBT - TSEG1) * 100) / NBT;
   u32 Baudrate    = ftq / (1 + TSEG0 + TSEG1) ;
+  s64 ErrorPpm   =  ((s64)Baudrate - (s64)HTCFG_CAN_CF0_BAUDRATE)*100000 / (s64)HTCFG_CAN_CF0_BAUDRATE;
 
   RETARGET_Configuration();
 
   printf("HT32 CAN Config 0 Check\r\n");
   printf("---------------------------------------------\r\n");
-  printf("  Core Clock (CK_AHB, Hz)     = %d\r\n", Core_Clock);
-  printf("  CAN IP Prescaler            = %d\r\n", IPPrescaler);
-  printf("  CAN IP Clock (CK_CAN, Hz)   = %d\r\n", CK_CAN);
-  printf("  CAN Prescaler (BRP)         = %d\r\n", BRP);
-  printf("  1 / time quantum (1/tq, Hz) = %d\r\n", ftq);
-  printf("  Prop_Seg + Phase_Seg0       = %d\r\n", TSEG0);
-  printf("  Phase_Seg1                  = %d\r\n", TSEG1);
-  printf("  Nominal Bit Time(NBT, calc) = %d tq\r\n", HTCFG_CAN_CF0_NOMINAL_BIT_TIME);
-  printf("  Nominal Bit Time(NBT, real) = %d tq\r\n", NBT);
-  printf("  Sample Point (setting)      = %d %%\r\n", HTCFG_CAN_CF0_SAMPLE_POINT);
-  printf("  Sample Point (real)         = %d %%\r\n", SamplePoint);
-  printf("  CAN BAUDRATE (setting, Hz)  = %d\r\n", HTCFG_CAN_CF0_BAUDRATE);
-  printf("  CAN BAUDRATE (real, Hz)     = %d\r\n", Baudrate);
+  printf("  Core Clock (CK_AHB, Hz)                = %d\r\n", Core_Clock);
+  printf("  CAN IP Prescaler                       = %d\r\n", IPPrescaler);
+  printf("  CAN IP Clock (CK_CAN, Hz)              = %d\r\n", CK_CAN);
+  printf("  CAN Prescaler (BRP)                    = %d\r\n", BRP);
+  printf("  1 / time quantum (1/tq, Hz)            = %d\r\n", ftq);
+  printf("  Prop_Seg + Phase_Seg0                  = %d\r\n", TSEG0);
+  printf("  Phase_Seg1                             = %d\r\n", TSEG1);
+  printf("  Nominal Bit Time(NBT, calc)            = %d tq\r\n", (u32)HTCFG_CAN_CF0_NOMINAL_BIT_TIME);
+  printf("  Nominal Bit Time(NBT, real)            = %d tq\r\n", NBT);
+  printf("  Sample Point (setting)                 = %d %%\r\n", HTCFG_CAN_CF0_SAMPLE_POINT);
+  printf("  Sample Point (real)                    = %d %%\r\n", SamplePoint);
+  printf("  CAN BAUDRATE (setting, Hz)             = %d\r\n", HTCFG_CAN_CF0_BAUDRATE);
+  printf("  CAN BAUDRATE (real, Hz)                = %d\r\n", Baudrate);
+  printf("  BAUDRATE Error (setting vs. real, %%)  = %c%d.%03d %%\r\n",
+                                                              (ErrorPpm >= 0) ? '+' : '-',
+                                                              abs((s32)ErrorPpm) / 1000,
+                                                              abs((s32)ErrorPpm) % 1000);
   printf("\r\n");
   printf("Please check the above setting is as expected....\r\n\r\n");
 }

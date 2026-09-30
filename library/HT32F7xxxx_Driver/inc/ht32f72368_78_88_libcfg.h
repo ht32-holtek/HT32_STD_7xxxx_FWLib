@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f72368_78_88_libcfg.h
- * @version $Rev:: 251          $
- * @date    $Date:: 2025-05-27 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   The library configuration file.
  *************************************************************************************************************
 * @attention
@@ -57,64 +57,58 @@
 #endif
 
 #define LIBCFG_AES                        (1)
-#define LIBCFG_PDMA                       (1)
-#define LIBCFG_PDMA_CH3FIX                (1)
 #define LIBCFG_ADC_CH8_11                 (1)
-#define LIBCFG_CMP                        (1)
-#define LIBCFG_DIV                        (1)
+#define LIBCFG_ADC_IVREF                  (1)
+#define LIBCFG_ADC_MVDDA                  (1)
+#define LIBCFG_BAKREG                     (1)
 #define LIBCFG_BFTM1                      (1)
-#define LIBCFG_SCTM0                      (1)
-#define LIBCFG_SCTM1                      (1)
-#define LIBCFG_MCTM0                      (1)
-#define LIBCFG_PWM0                       (1)
-#define LIBCFG_PWM1                       (1)
-
 #define LIBCFG_CAN0                       (1)
 #define LIBCFG_CAN1                       (1)
-#define LIBCFG_USART1                     (1)
-#define LIBCFG_UART1                      (1)
-#define LIBCFG_UART2                      (1)
-#define LIBCFG_UART3                      (1)
-#define LIBCFG_SPI1                       (1)
-#define LIBCFG_QSPI                       (1)
-#define LIBCFG_I2C1                       (1)
-#define LIBCFG_I2C2                       (1)
-#define LIBCFG_I2C_NOSTRETCH              (1)
-#define LIBCFG_DAC0                       (1)
-
-#define LIBCFG_GPIOC                      (1)
-#define LIBCFG_GPIOD                      (1)
-#define LIBCFG_GPIOE                      (1)
-
-#define LIBCFG_LSE                        (1)
-#define LIBCFG_SCI0                       (1)
-#define LIBCFG_SCI1                       (1)
-#define LIBCFG_USBD                       (1)
-#define LIBCFG_EBI                        (1)
-#define LIBCFG_I2S                        (1)
-#define LIBCFG_CRC                        (1)
-#define LIBCFG_RAMECC                     (1)
-#define LIBCFG_RNG                        (1)
-
-#define LIBCFG_MCTM_ERRORTOBREAK          (1)
-
-#define LIBCFG_FMC_CACHE                  (1)
-#define LIBCFG_FMC_EATF                   (1)
-#define LIBCFG_FMC_ISPINT                 (1)
-#define LIBCFG_FMC_WAIT_STATE_2           (1)
-
 #define LIBCFG_CKCU_USB_PLL               (1)
 #define LIBCFG_CKCU_REFCLK_EXT_PIN        (1)
 #define LIBCFG_CKCU_HSIRDYCR              (1)
 #define LIBCFG_CKCU_LSI_TRIM              (1)
 #define LIBCFG_CKCU_PLLSRCDIV             (1)
-
-#define LIBCFG_ADC_IVREF                  (1)
-#define LIBCFG_ADC_MVDDA                  (1)
-
+#define LIBCFG_CMP                        (1)
+#define LIBCFG_CMP_IVREF_CN_IN            (1)
+#define LIBCFG_CRC                        (1)
+#define LIBCFG_DAC0                       (1)
+#define LIBCFG_DIV                        (1)
+#define LIBCFG_EBI                        (1)
+#define LIBCFG_FMC_CACHE                  (1)
+#define LIBCFG_FMC_EATF                   (1)
+#define LIBCFG_FMC_ISPINT                 (1)
+#define LIBCFG_FMC_WAIT_STATE_2           (1)
+#define LIBCFG_GPIOC                      (1)
+#define LIBCFG_GPIOD                      (1)
+#define LIBCFG_GPIOE                      (1)
+#define LIBCFG_I2C1                       (1)
+#define LIBCFG_I2C2                       (1)
+#define LIBCFG_I2C_NOSTRETCH              (1)
+#define LIBCFG_I2S0                       (1)
+#define LIBCFG_LSE                        (1)
+#define LIBCFG_MCTM0                      (1)
+#define LIBCFG_MCTM_ERRORTOBREAK          (1)
+#define LIBCFG_PDMA                       (1)
+#define LIBCFG_PDMA_CH3FIX                (1)
+#define LIBCFG_PWM0                       (1)
+#define LIBCFG_PWM1                       (1)
+#define LIBCFG_PWRCU_DEEPSLEEP3           (1)
+#define LIBCFG_QSPI                       (1)
+#define LIBCFG_RAMECC                     (1)
+#define LIBCFG_RNG                        (1)
+#define LIBCFG_SCI0                       (1)
+#define LIBCFG_SCI1                       (1)
+#define LIBCFG_SCTM0                      (1)
+#define LIBCFG_SCTM1                      (1)
+#define LIBCFG_SPI1                       (1)
+#define LIBCFG_UART1                      (1)
+#define LIBCFG_UART2                      (1)
+#define LIBCFG_UART3                      (1)
+#define LIBCFG_USART1                     (1)
 #define LIBCFG_USART_LIN                  (1)
 #define LIBCFG_USART_SINGLE_WIRE          (1)
+#define LIBCFG_USBD                       (1)
 
-#define LIBCFG_BAKREG                     (1)
-#define LIBCFG_PWRCU_DEEPSLEEP3           (1)
+
 #endif

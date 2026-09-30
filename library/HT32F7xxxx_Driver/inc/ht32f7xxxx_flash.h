@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_flash.h
- * @version $Rev:: 470          $
- * @date    $Date:: 2026-06-01 #$
+ * @version $Rev:: 503          $
+ * @date    $Date:: 2026-09-16 #$
  * @brief   The header file of the FLASH library.
  *************************************************************************************************************
  * @attention
@@ -231,7 +231,6 @@ void FLASH_CompareKey(u32 *KeyValue);
 FlagStatus FLASH_GetPartialLockStatus(void);
 FlagStatus FLASH_GetKeyCompareStatus(void);
 u32 FLASH_GetMismatchCount(void);
-void FLASH_LowVoltageReadCmd(ControlStatus NewState);
 
 /**
   * @}

@@ -28,7 +28,7 @@ rem rmdir /S /Q "GNU_ARM"
 rem rmdir /S /Q "HT32-IDE"
 rmdir /S /Q "MDK_ARM"
 rem rmdir /S /Q "MDK_ARMv5"
-rmdir /S /Q "MDK_ARMv537"
+rem rmdir /S /Q "MDK_ARMv537"
 rmdir /S /Q "SourceryG++Lite"
 REM ============================================================================
 
@@ -110,7 +110,7 @@ copy /Y "_setting\GNU_ht32_op2.c" "GNU_ARM\ht32_op2.c"
 copy /Y "_setting\GNU_ht32_op2.c" "HT32-IDE\GNU_ARM\ht32_op2.c"
 rem copy /Y "_setting\MDK_ht32_op2.s" "MDK_ARM\ht32_op2.s"
 copy /Y "_setting\MDK_ht32_op2.s" "MDK_ARMv5\ht32_op2.s"
-rem copy /Y "_setting\MDK_ht32_op2.s" "MDK_ARMv537\ht32_op2.s"
+copy /Y "_setting\MDK_ht32_op2.s" "MDK_ARMv537\ht32_op2.s"
 
 copy /Y "_setting\EWARM_linker.icf" "EWARM\linker.icf"
 copy /Y "_setting\EWARM_linker.icf" "EWARMv8\linker.icf"
@@ -118,7 +118,7 @@ copy /Y "_setting\GNU_linker.ld" "GNU_ARM\linker.ld"
 copy /Y "_setting\GNU_linker.ld" "HT32-IDE\GNU_ARM\linker.ld"
 rem copy /Y "_setting\MDK_linker.lin" "MDK_ARM\linker.lin"
 copy /Y "_setting\MDK_linker.lin" "MDK_ARMv5\linker.lin"
-rem copy /Y "_setting\MDK_linker.lin" "MDK_ARMv537\linker.lin"
+copy /Y "_setting\MDK_linker.lin" "MDK_ARMv537\linker.lin"
 
 rem gsar.exe -s"<ScatterFile></ScatterFile>" -r"<ScatterFile>.\linker.lin</ScatterFile>" MDK_ARM\*.uvproj -o
 rem gsar.exe -s"<ScatterFile></ScatterFile>" -r"<ScatterFile>.\linker.lin</ScatterFile>" MDK_ARMv5\*.uvprojx -o

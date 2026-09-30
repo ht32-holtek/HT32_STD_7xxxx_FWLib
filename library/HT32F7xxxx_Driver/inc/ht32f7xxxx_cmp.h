@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_cmp.h
- * @version $Rev:: 79           $
- * @date    $Date:: 2025-02-10 #$
+ * @version $Rev:: 502          $
+ * @date    $Date:: 2026-09-16 #$
  * @brief   The header file of the CMP library.
  *************************************************************************************************************
  * @attention
@@ -93,17 +93,15 @@ typedef struct
 /* Definitions of CMP Output Selection for IP Trigger Source                                                */
 #define CMP_TRIG_NONE                             ((u32)0x0 << 11)
 #define CMP_TRIG_GPTM_CH3                         ((u32)0x1 << 11)
+#define CMP_TRIG_ADC                              ((u32)0x4 << 11)
 #if (LIBCFG_MCTM0)
 #define CMP_TRIG_MCTM_CH3                         ((u32)0x2 << 11)
 #define CMP_TRIG_MCTM_BK1                         ((u32)0x3 << 11)
-#define CMP_TRIG_ADC                              ((u32)0x4 << 11)
-
 #if (LIBCFG_MCTM0)
 #define IS_CMP_OutSelMCTM(x)                      ((x == CMP_TRIG_MCTM_CH3) || (x == CMP_TRIG_MCTM_BK1))
 #else
 #define IS_CMP_OutSelMCTM(x)                      (0)
 #endif
-
 #define IS_CMP_OutputSelection(x)                 ((x == CMP_TRIG_NONE)     || \
                                                    (x == CMP_TRIG_GPTM_CH3) || \
                                                    IS_CMP_OutSelMCTM(x)     || \
@@ -151,6 +149,11 @@ typedef struct
 
 #define IS_CMP_InvInSel2(x)                       (0)
 
+#if (LIBCFG_CMP_IVREF_CN_IN)
+#define CMP_IVREF_CN_IN                           ((u32)0x00000020)
+#undef  IS_CMP_InvInSel2
+#define IS_CMP_InvInSel2(x)                       ((x == CMP_IVREF_CN_IN))
+#endif
 
 #define IS_CMP_InvInputSelection(x)               ((x == CMP_EXTERNAL_CN_IN) || (x == CMP_SCALER_CN_IN) || IS_CMP_InvInSel2(x))
 
@@ -180,14 +183,14 @@ typedef struct
 #define CMP_INT_FE                                ((u32)0x00000001)
 
 /* Check the CMP Interrupt Parameter                                                                        */
-#define IS_CMP_INT(x)                             ((x & 0xFFFFFF00) != 0x0)
+#define IS_CMP_INT(x)                             (((x) != 0) && (((x) & ~((u32)0x3)) == 0))
 
 
 /* Definitions of CMP Output Edge Detection Enable bit                                                      */
 #define CMP_RE_Detect                             ((u32)0x00000200)
 #define CMP_FE_Detect                             ((u32)0x00000100)
 
-#define IS_CMP_EdgeDetect(x)                      ((x == CMP_RE_Detect) || (x == CMP_FE_Detect))
+#define IS_CMP_EdgeDetect(x)                      (((x) != 0) && (((x) & ~((u32)0x300)) == 0))
 
 
 /* Definitions of CMP Output Edge Flag                                                                      */
@@ -195,7 +198,7 @@ typedef struct
 #define CMP_FLAG_FE                               ((u32)0x00000001)
 
 /* Check the CMP flag Parameter                                                                             */
-#define IS_CMP_FLAG(x)                            ((x & 0xFFFFFF00) != 0x0)
+#define IS_CMP_FLAG(x)                            (((x) != 0) && (((x) & ~((u32)0x3)) == 0))
 
 
 /* Check the CMPx Parameter                                                                                 */

@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_i2s.h
- * @version $Rev:: 15           $
- * @date    $Date:: 2025-01-13 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   The header file of the I2S library.
  *************************************************************************************************************
  * @attention
@@ -200,6 +200,17 @@ typedef struct
 #define I2S_PDMAREQ_RX                            (1UL << 14)
 
 #define IS_I2S_PDMA_REQ(REQ)                      (((REQ & 0xFFFF9FFF) == 0) && (REQ != 0))
+
+#define IS_I2S(x)                                 (IS_I2S0(x) || IS_I2S1(x))
+
+#define IS_I2S0(x)                                (x == HT_I2S0)
+
+#if (LIBCFG_I2S1)
+#define IS_I2S1(x)                                (x == HT_I2S1)
+#else
+#define IS_I2S1(x)                                (0)
+#endif
+
 /**
   * @}
   */
@@ -208,18 +219,18 @@ typedef struct
 /** @defgroup I2S_Exported_Functions I2S exported functions
   * @{
   */
-void I2S_DeInit(void);
-void I2S_Init(I2S_InitTypeDef* I2S_InitStruct);
-void I2S_Cmd(ControlStatus NewState);
+void I2S_DeInit(HT_I2S_TypeDef* I2Sx);
+void I2S_Init(HT_I2S_TypeDef* I2Sx, I2S_InitTypeDef* I2S_InitStruct);
+void I2S_Cmd(HT_I2S_TypeDef* I2Sx, ControlStatus NewState);
 void I2S_MclkOutputCmd(ControlStatus NewState);
-void I2S_TxMuteCmd(ControlStatus NewState);
-void I2S_PDMACmd(u32 I2S_PDMAREQ, ControlStatus NewState);
-void I2S_FIFOReset(u32 I2S_FIFO);
-void I2S_FIFOTrigLevelConfig(u32 I2S_FIFO, u32 I2S_FIFOLevel);
-u8 I2S_GetFIFOStatus(u32 I2S_FIFO);
-void I2S_IntConfig(u32 I2S_Int, ControlStatus NewState);
-FlagStatus I2S_GetFlagStatus(u32 I2S_Flag);
-void I2S_ClearFlag(u32 I2S_Flag);
+void I2S_TxMuteCmd(HT_I2S_TypeDef* I2Sx, ControlStatus NewState);
+void I2S_PDMACmd(HT_I2S_TypeDef* I2Sx, u32 I2S_PDMAREQ, ControlStatus NewState);
+void I2S_FIFOReset(HT_I2S_TypeDef* I2Sx, u32 I2S_FIFO);
+void I2S_FIFOTrigLevelConfig(HT_I2S_TypeDef* I2Sx, u32 I2S_FIFO, u32 I2S_FIFOLevel);
+u8 I2S_GetFIFOStatus(HT_I2S_TypeDef* I2Sx, u32 I2S_FIFO);
+void I2S_IntConfig(HT_I2S_TypeDef* I2Sx, u32 I2S_Int, ControlStatus NewState);
+FlagStatus I2S_GetFlagStatus(HT_I2S_TypeDef* I2Sx, u32 I2S_Flag);
+void I2S_ClearFlag(HT_I2S_TypeDef* I2Sx, u32 I2S_Flag);
 /**
   * @}
   */

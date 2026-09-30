@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_lib.h
- * @version $Rev:: 212          $
- * @date    $Date:: 2025-05-06 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   The header file includes all the header files of the libraries.
  *************************************************************************************************************
  * @attention
@@ -34,8 +34,8 @@
 #endif
 
 /* Settings ------------------------------------------------------------------------------------------------*/
-#define HT32_FWLIB_VER                  (999999) // Auto update when package
-#define HT32_FWLIB_SVN                  (999999) // Auto update when package
+#define HT32_FWLIB_VER                  (0x01001000)
+#define HT32_FWLIB_SVN                  (0x538)
 
 #if defined(USE_HT32F72368_78_88)
   #include "ht32f72368_78_88_libcfg.h"
@@ -133,7 +133,7 @@ void assert_error(u8* file, u32 line);
   #include "ht32f7xxxx_i2c.h"
 #endif
 
-#if _I2S && LIBCFG_I2S
+#if _I2S && (LIBCFG_I2S0 || LIBCFG_I2S1)
   #include "ht32f7xxxx_i2s.h"
 #endif
 

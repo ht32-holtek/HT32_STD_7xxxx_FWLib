@@ -6,7 +6,7 @@ Copy this application directory to the root directory of the HT32 F/W Library in
 
 For example:
 
-  HT32 App Code: HT32_APPFW_5xxxx_IAP_UART_Vm.n.r_vvvv.zip â†’ application\IAP_UART\...
+  HT32 App Code: HT32_APPFW_5xxxx_IAP_UART_Vm.n.r_vvvv.zip ¡÷ application\IAP_UART\...
 
   Copy the entire application directory above into the following structure:
 

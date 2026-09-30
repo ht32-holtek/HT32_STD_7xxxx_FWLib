@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_pdma.h
- * @version $Rev:: 228          $
- * @date    $Date:: 2025-05-12 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   The header file of the PDMA library.
  *************************************************************************************************************
  * @attention
@@ -185,9 +185,9 @@ typedef struct
 #define PDMA_SCI1_TX              PDMA_CH3                      /*!< SCI1_RX PDMA channel number            */
 #endif
 
-#if (LIBCFG_I2S)
-#define PDMA_I2S_TX               PDMA_CH2                      /*!< I2S_TX PDMA channel number             */
-#define PDMA_I2S_RX               PDMA_CH1                      /*!< I2S_RX PDMA channel number             */
+#if (LIBCFG_I2S0)
+#define PDMA_I2S0_TX              PDMA_CH2                      /*!< I2S0_TX PDMA channel number            */
+#define PDMA_I2S0_RX              PDMA_CH1                      /*!< I2S0_RX PDMA channel number            */
 #endif
 
 #if (LIBCFG_MCTM0)

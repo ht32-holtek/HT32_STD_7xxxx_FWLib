@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    Release_Notes.txt
- * @version V1.0
- * @date    2025-11-07
+ * @version V1.1
+ * @date    2026-09-24
  * @brief   The Release notes of HT32 Firmware Library.
  *************************************************************************************************************
  * @attention
@@ -28,6 +28,76 @@
 // Supported Device
 // ========================================
 //   HT32F72368, HT32F72378, HT32F72388
+
+/*----------------------------------------------------------------------------------------------------------*/
+/* HT32_STD_7xxxx_FWLib_V1.1_538                                                                            */
+/*----------------------------------------------------------------------------------------------------------*/
+  Release Date: 2026-09-24
+  Main Changes
+  + Add new example.
+    - "example/SPI/Flash_Auto"
+  + Update interval for polling endpoint in the following examples to comply with the specification:
+    - "example/USBD/HID_Keyboard_Virtual_COM"
+    - "example/USBD/Virtual_COM"
+  + Update ht32f7xxxx_conf.h.
+    - Add configuration macros to allow selection of the temperature calibration point reference.
+      "#define ADC_CAL_TEMP_POINT_SOURCE     0"
+      "#define ADC_FIXED_CAL_TEMP_mC         22000"
+  + Add "USE_LIBCFG_RAM_SIZE" define in Keil project files for the "Stack On Top" feature.
+  + Update Stackinit in "ht32_cm0plus_misc.c" to support the GNU compiler.
+  + Update "syscalls.c" to eliminate GNU compiler warnings.
+  + Update Example/SYSTICK/DelayMicrosecond to prevent unexpected COUNTFLAG triggers.
+  + Update TM/PWM example by casting the parameter in PWM_UpdateDuty to (u32) to eliminate IAR compiler warnings.
+  + Update I2S driver and examples to support I2S0/I2S1 instances.
+    - Rename I2S related definitions for instance identification.
+    - Add "HT_I2S_TypeDef* I2Sx" parameter to I2S APIs for instance selection.
+  + Update SCI driver.
+    - Modify "SCI_ETUConfig()" to support the maximum ETU value of 2048.
+    - Update "SCI_SetGuardTimeValue()" to check the minimum Guard Time when automatic character repetition is enabled.
+  + Update CMP driver.
+    - Fix parameter check macros for interrupt, edge detection, and flag settings.
+    - Update "CMP_Init()" to correctly initialize the control register.
+  + Update RNG driver.
+    - Fix "RNG_ClearFlag()" to clear the specified flag.
+    - Remove unsupported RNG interrupt and flag definitions.
+  + Update I2C Driver.
+    - Support No-Stretch mode when "LIBCFG_I2C_NOSTRETCH" is defined.
+    - Update sequential filter debounce width from 3 PCLK to 7 PCLK when "LIBCFG_I2C_SEQ3_7" is defined.
+    - Add "I2C_TXDRReset()" API to clear TXDR (effective only when "LIBCFG_I2C_NOSTRETCH" is defined).
+    - Update "I2C_SequentialFilterConfig()" API to avoid setting the I2C Busy Flag.
+  + Update PWRCU driver.
+    - Modify low-power mode configuration and power control flow.
+  + Remove unsupported API and examples.
+    - "FLASH_LowVoltageReadCmd()" API.
+    - "example/PWRCU/RunMode_ULDO_Off".
+  + Rename RAMECC interrupt definition.
+    - "RAMECC_INT_ECCNMIIE" to "RAMECC_INT_ECCNMIE"
+  + Update "example/I2S/CodecLoopback_PDMA" to support I2S0/I2S1 instances.
+    - Add configurable I2S port, PDMA channel, and IRQ definitions in "ht32_board_config.h".
+    - Replace fixed I2S and PDMA resources with board configuration definitions.
+  + Update "example/FMC/FLASH_PartialLock_Project_l1" to support MDK-ARM v5.37.
+    - Add the corresponding prebuilt symbol object and project configuration.
+  + Update FLASH driver.
+    - Fix FLASH write-command flag parameter check to support "FLASH_FLAG_PREF".
+    - Update "FLASH_GetPartialLockOptionByte()" to prevent the Partial Lock key value from being returned for security reasons.
+  + Update "example/SPI/Slave" interrupt configuration to match the HT32F72388 Starter Kit KEY1 pin assignment.
+  + Update startup files to use the common weak interrupt handler mechanism for "FLASH_IRQHandler".
+  + Update EEPROM Emulation middleware to improve reliability and error handling.
+    "utilities/middleware/eeprom_emulation.c/h"
+    - Improve EEPROM page state handling and recovery for interrupted page transfers.
+    - Add parameter, address range, and Flash operation checks.
+    - Improve page transfer error handling to preserve existing data when an unexpected error occurs.
+    - Add Flash program verification and improve Flash cache handling after erase/program operations.
+
+  Others
+  + Update comment, format, typing error, and coding style.
+  + Modify "printf.c" to avoid compilation issues when "_RETARGET" is disabled.
+  + Update the default baud rate tolerance setting in "ht32_can_config.h" to avoid clock divider calculation errors.
+  + Rename configuration header.
+    - "ht32_config.h" to "ht32f7_config.h"
+  + Update GNU startup files to modify stack and heap section attributes.
+    "startup_ht32f7xxxx_gcc_nn.s"
+  + Update GPIO driver to optimize the size of "AFIO_GPxConfig()" function.
 
 /*----------------------------------------------------------------------------------------------------------*/
 /* HT32_STD_7xxxx_FWLib_V1.0_409                                                                            */

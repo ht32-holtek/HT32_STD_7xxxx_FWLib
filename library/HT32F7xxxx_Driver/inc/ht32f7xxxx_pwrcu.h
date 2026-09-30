@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_pwrcu.h
- * @version $Rev:: 461          $
- * @date    $Date:: 2026-05-21 #$
+ * @version $Rev:: 503          $
+ * @date    $Date:: 2026-09-16 #$
  * @brief   The header file of the Power Control Unit library.
  *************************************************************************************************************
  * @attention
@@ -141,37 +141,6 @@ typedef enum
 #endif
 
 /**
- * @brief LDO operation mode selection
- */
-typedef enum
-{
-  PWRCU_LDO_NORMAL = 0,     /*!< The LDO is operated in normal current mode                                 */
-  PWRCU_LDO_LOWCURRENT      /*!< The LDO is operated in low current mode                                    */
-} PWRCU_LDOMODE_Enum;
-
-/**
- * @brief LDO Output Voltage Selection
- */
-typedef enum
-{
- PWRCU_LDO_LEVEL0 = 0,
- PWRCU_LDO_LEVEL1,
- PWRCU_LDO_LEVEL2,
- PWRCU_LDO_LEVEL3,
-} PWRCU_LDO_LEVEL_TypeDef;
-
-/**
- * @brief ULDO Output Voltage Selection
- */
-typedef enum
-{
- PWRCU_ULDO_LEVEL0 = 0,
- PWRCU_ULDO_LEVEL1,
- PWRCU_ULDO_LEVEL2,
- PWRCU_ULDO_LEVEL3,
-} PWRCU_ULDO_LEVEL_TypeDef;
-
-/**
   * @}
   */
 
@@ -236,7 +205,6 @@ void PWRCU_DeepSleep3(PWRCU_SLEEP_ENTRY_Enum SleepEntry);
 void PWRCU_PowerDown(void);
 void PWRCU_DeepPowerDown(void);
 void PWRCU_SetLVDS(PWRCU_LVDS_Enum Level);
-void PWRCU_LDOConfig(PWRCU_LDOMODE_Enum Sel);
 void PWRCU_LVDCmd(ControlStatus NewState);
 void PWRCU_BODCmd(ControlStatus NewState);
 void PWRCU_BODRISConfig(PWRCU_BODRIS_Enum Selection);
@@ -245,9 +213,6 @@ FlagStatus PWRCU_GetBODFlagStatus(void);
 void PWRCU_LVDIntWakeupConfig(ControlStatus NewState);
 void PWRCU_LVDEventWakeupConfig(ControlStatus NewState);
 void PWRCU_WakeupPinCmd(ControlStatus NewState);
-void PWRCU_LDOOutputVoltageConfig(PWRCU_LDO_LEVEL_TypeDef Level);
-void PWRCU_ULDOOutputVoltageConfig(PWRCU_ULDO_LEVEL_TypeDef Level);
-void PWRCU_ForceTurnOffULDO(void);
 /**
   * @}
   */

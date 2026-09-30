@@ -30,7 +30,7 @@ ICODE_LOAD 0x00004000 0x1000
   ICODE_EXEC +0
   {
     icode.o (+XO)
-    icode.o (.constdata)
+    icode.o (+RO)
   }
 }
 

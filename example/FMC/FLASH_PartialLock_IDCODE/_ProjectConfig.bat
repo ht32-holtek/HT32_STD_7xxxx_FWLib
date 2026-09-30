@@ -28,7 +28,7 @@ rem rmdir /S /Q "GNU_ARM"
 rem rmdir /S /Q "HT32-IDE"
 rmdir /S /Q "MDK_ARM"
 rem rmdir /S /Q "MDK_ARMv5"
-rmdir /S /Q "MDK_ARMv537"
+rem rmdir /S /Q "MDK_ARMv537"
 rmdir /S /Q "SourceryG++Lite"
 REM ============================================================================
 
@@ -110,7 +110,7 @@ copy /Y "_setting\GNU_ht32_op2.c" "GNU_ARM\ht32_op2.c"
 copy /Y "_setting\GNU_ht32_op2.c" "HT32-IDE\GNU_ARM\ht32_op2.c"
 rem copy /Y "_setting\MDK_ht32_op2.s" "MDK_ARM\ht32_op2.s"
 copy /Y "_setting\MDK_ht32_op2.s" "MDK_ARMv5\ht32_op2.s"
-rem copy /Y "_setting\MDK_ht32_op2.s" "MDK_ARMv537\ht32_op2.s"
+copy /Y "_setting\MDK_ht32_op2.s" "MDK_ARMv537\ht32_op2.s"
 
 copy /Y "_setting\EWARM_linker.icf" "EWARM\linker.icf"
 copy /Y "_setting\EWARM_linker.icf" "EWARMv8\linker.icf"
@@ -118,7 +118,7 @@ copy /Y "_setting\GNU_linker.ld" "GNU_ARM\linker.ld"
 copy /Y "_setting\GNU_linker.ld" "HT32-IDE\GNU_ARM\linker.ld"
 rem copy /Y "_setting\MDK_linker.lin" "MDK_ARM\linker.lin"
 copy /Y "_setting\MDK_linker.lin" "MDK_ARMv5\linker.lin"
-rem copy /Y "_setting\MDK_linker.lin" "MDK_ARMv537\linker.lin"
+copy /Y "_setting\MDK_linker.lin" "MDK_ARMv537\linker.lin"
 
 rem gsar.exe -s"<ScatterFile></ScatterFile>" -r"<ScatterFile>.\linker.lin</ScatterFile>" MDK_ARM\*.uvproj -o
 rem gsar.exe -s"<ScatterFile></ScatterFile>" -r"<ScatterFile>.\linker.lin</ScatterFile>" MDK_ARMv5\*.uvprojx -o
@@ -161,6 +161,7 @@ gsar.exe -s"UFILE" -r"        </file>" EWARMv8\*.ewp -o
 gsar.exe -s"              <FilePath>..\ht32f7xxxx_01_it.c</FilePath>:x0a            </File>:x0a" -r"              <FilePath>..\ht32f7xxxx_01_it.c</FilePath>:x0a            </File>:x0a            <File>:x0a              <FileName>icode.c</FileName>:x0a              <FileType>1</FileType>:x0a              <FilePath>..\icode.c</FilePath>:x0a            </File>:x0a" GNU_ARM\*.uvprojx -o
 rem gsar.exe -s"              <FilePath>..\ht32f7xxxx_01_it.c</FilePath>:x0a            </File>:x0a" -r"              <FilePath>..\ht32f7xxxx_01_it.c</FilePath>:x0a            </File>:x0a            <File>:x0a              <FileName>icode.c</FileName>:x0a              <FileType>1</FileType>:x0a              <FilePath>..\icode.c</FilePath>:x0a            </File>:x0a" MDK_ARM\*.uvproj -o
 gsar.exe -s"              <FilePath>..\ht32f7xxxx_01_it.c</FilePath>:x0a            </File>:x0a" -r"              <FilePath>..\ht32f7xxxx_01_it.c</FilePath>:x0a            </File>:x0a            <File>:x0a              <FileName>icode.c</FileName>:x0a              <FileType>1</FileType>:x0a              <FilePath>..\icode.c</FilePath>:x0a            </File>:x0a" MDK_ARMv5\*.uvprojx -o
+gsar.exe -s"              <FilePath>..\ht32f7xxxx_01_it.c</FilePath>:x0a            </File>:x0a" -r"              <FilePath>..\ht32f7xxxx_01_it.c</FilePath>:x0a            </File>:x0a            <File>:x0a              <FileName>icode.c</FileName>:x0a              <FileType>1</FileType>:x0a              <FilePath>..\icode.c</FilePath>:x0a            </File>:x0a" MDK_ARMv537\*.uvprojx -o
 
 gsar.exe -s"              <FilePath>..\icode.c</FilePath>" -r"              <FilePath>..\icode.c</FilePath>:x0aTFILEOPTION:x0aTFILEARM:x0aTCARM:x0aTVARIOUSCONTROLS:x0aTMISCCONTROLS:x0aUVARIOUSCONTROLS:x0aUCARM:x0aUFILEARM:x0aUFILEOPTION" GNU_ARM\*.uvprojx -o
 gsar.exe -s"TFILEOPTION" -r"              <FileOption>" GNU_ARM\*.uvprojx -o
@@ -175,6 +176,7 @@ gsar.exe -s"UFILEOPTION" -r"              </FileOption>" GNU_ARM\*.uvprojx -o
 
 rem gsar.exe -s"              <FilePath>..\icode.c</FilePath>:x0a" -r"              <FilePath>..\icode.c</FilePath>:x0a              <FileOption>:x0a                <FileArmAds>:x0a                  <Cads>:x0a                    <useXO>1</useXO>:x0a                  </Cads>:x0a                </FileArmAds>:x0a              </FileOption>:x0a" MDK_ARM\*.uvproj -o
 gsar.exe -s"              <FilePath>..\icode.c</FilePath>:x0a" -r"              <FilePath>..\icode.c</FilePath>:x0a              <FileOption>:x0a                <FileArmAds>:x0a                  <Cads>:x0a                    <useXO>1</useXO>:x0a                  </Cads>:x0a                </FileArmAds>:x0a              </FileOption>:x0a" MDK_ARMv5\*.uvprojx -o
+gsar.exe -s"              <FilePath>..\icode.c</FilePath>:x0a" -r"              <FilePath>..\icode.c</FilePath>:x0a              <FileOption>:x0a                <FileArmAds>:x0a                  <Cads>:x0a                    <useXO>1</useXO>:x0a                  </Cads>:x0a                </FileArmAds>:x0a              </FileOption>:x0a" MDK_ARMv537\*.uvprojx -o
 
 for /D %%d in (HT32-IDE\Project_*) do (
   gsar.exe -s"	<linkedResources>" -r"	<linkedResources>:x0a		<link>:x0aNAME:x0aTYPE:x0aLOCATIONURI:x0a		</link>" %%d\*.project -o

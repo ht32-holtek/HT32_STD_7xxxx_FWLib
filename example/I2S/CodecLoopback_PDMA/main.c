@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    I2S/CodecLoopback_PDMA/main.c
- * @version $Rev:: 123          $
- * @date    $Date:: 2025-02-18 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   Main program.
  *************************************************************************************************************
  * @attention
@@ -352,7 +352,7 @@ void CKCU_Configuration(void)
   CKCUClock.Bit.PDMA          = 1;
   CKCUClock.Bit.HTCFG_I2C_IPN = 1;
   CKCUClock.Bit.AFIO          = 1;
-  CKCUClock.Bit.I2S           = 1;
+  CKCUClock.Bit.HTCFG_I2S_IPN = 1;
   CKCU_PeripClockConfig(CKCUClock, ENABLE);
 }
 
@@ -364,8 +364,8 @@ void NVIC_Configuration(void)
 {
   NVIC_SetVectorTable(NVIC_VECTTABLE_FLASH, 0x0);     /* Set the Vector Table base location at 0x00000000   */
 
-  NVIC_EnableIRQ(I2S_IRQn);
-  NVIC_EnableIRQ(PDMACH0_1_IRQn);
+  NVIC_EnableIRQ(HTCFG_I2S_IRQn);
+  NVIC_EnableIRQ(HTCFG_I2S_RX_PDMA_CH_IRQn);
   NVIC_EnableIRQ(HTCFG_I2C_IRQn);
 }
 
@@ -601,7 +601,7 @@ void I2S_Configuration(void)
   I2S_InitStructure.I2S_Y_Div = HTCFG_I2S_MUSIC_Y_DIV;
   I2S_InitStructure.I2S_N_Div = 256 / (2 * 16) - 1;               // BCLK = MCLK / 8 = about 1536 kHz (32 x 48 kHz, 2 CH x 16-bit = 32 fs)
 #endif
-  I2S_Init(&I2S_InitStructure);
+  I2S_Init(HTCFG_I2S_PORT, &I2S_InitStructure);
 }
 
 /*********************************************************************************************************//**
@@ -618,37 +618,37 @@ void PDMA_Configuration(void)
 
   /* I2S TX                                                                                                 */
   PDMACH_InitStructure.PDMACH_SrcAddr = (u32)&TxBuf[0][0];
-  PDMACH_InitStructure.PDMACH_DstAddr = (u32)&HT_I2S->TXDR;
+  PDMACH_InitStructure.PDMACH_DstAddr = (u32)&HTCFG_I2S_PORT->TXDR;
   PDMACH_InitStructure.PDMACH_AdrMod = (SRC_ADR_LIN_INC | DST_ADR_FIX | AUTO_RELOAD);
   PDMACH_InitStructure.PDMACH_BlkCnt = BUF_SIZE/5;
   PDMACH_InitStructure.PDMACH_BlkLen = 5;
   PDMACH_InitStructure.PDMACH_DataSize = WIDTH_32BIT;
   PDMACH_InitStructure.PDMACH_Priority = M_PRIO;
-  PDMA_Config(PDMA_CH2, &PDMACH_InitStructure);
-  PDMA_EnaCmd(PDMA_CH2, ENABLE);
+  PDMA_Config(HTCFG_I2S_TX_PDMA_CH, &PDMACH_InitStructure);
+  PDMA_EnaCmd(HTCFG_I2S_TX_PDMA_CH, ENABLE);
 
-  I2S_FIFOTrigLevelConfig(I2S_TX_FIFO, 3);  // Tx FIFO data '<' or '=' 3
-  I2S_IntConfig(I2S_INT_TXFIFO_UDF, ENABLE);
-  I2S_PDMACmd(I2S_PDMAREQ_TX, ENABLE);
+  I2S_FIFOTrigLevelConfig(HTCFG_I2S_PORT, I2S_TX_FIFO, 3);  // Tx FIFO data '<' or '=' 3
+  I2S_IntConfig(HTCFG_I2S_PORT, I2S_INT_TXFIFO_UDF, ENABLE);
+  I2S_PDMACmd(HTCFG_I2S_PORT, I2S_PDMAREQ_TX, ENABLE);
 
 
   /* I2S RX                                                                                                 */
-  PDMACH_InitStructure.PDMACH_SrcAddr = (u32)&HT_I2S->RXDR;
+  PDMACH_InitStructure.PDMACH_SrcAddr = (u32)&HTCFG_I2S_PORT->RXDR;
   PDMACH_InitStructure.PDMACH_DstAddr = (u32)&RxBuf[0][0];
   PDMACH_InitStructure.PDMACH_AdrMod = (SRC_ADR_FIX | DST_ADR_LIN_INC | AUTO_RELOAD);
   PDMACH_InitStructure.PDMACH_BlkCnt = BUF_SIZE/5;
   PDMACH_InitStructure.PDMACH_BlkLen = 5;
   PDMACH_InitStructure.PDMACH_DataSize = WIDTH_32BIT;
   PDMACH_InitStructure.PDMACH_Priority = H_PRIO;
-  PDMA_Config(PDMA_CH1, &PDMACH_InitStructure);
-  PDMA_IntConfig(PDMA_CH1, (PDMA_INT_GE | PDMA_INT_TC | PDMA_INT_HT), ENABLE);
-  PDMA_EnaCmd(PDMA_CH1, ENABLE);
+  PDMA_Config(HTCFG_I2S_RX_PDMA_CH, &PDMACH_InitStructure);
+  PDMA_IntConfig(HTCFG_I2S_RX_PDMA_CH, (PDMA_INT_GE | PDMA_INT_TC | PDMA_INT_HT), ENABLE);
+  PDMA_EnaCmd(HTCFG_I2S_RX_PDMA_CH, ENABLE);
 
-  I2S_FIFOTrigLevelConfig(I2S_RX_FIFO, 5);  // Rx FIFO data '>' or '=' 5
-  I2S_PDMACmd(I2S_PDMAREQ_RX, ENABLE);
-  I2S_IntConfig(I2S_INT_RXFIFO_OVF, ENABLE);
+  I2S_FIFOTrigLevelConfig(HTCFG_I2S_PORT, I2S_RX_FIFO, 5);  // Rx FIFO data '>' or '=' 5
+  I2S_PDMACmd(HTCFG_I2S_PORT, I2S_PDMAREQ_RX, ENABLE);
+  I2S_IntConfig(HTCFG_I2S_PORT, I2S_INT_RXFIFO_OVF, ENABLE);
 
-  I2S_Cmd(ENABLE);
+  I2S_Cmd(HTCFG_I2S_PORT, ENABLE);
 }
 
 #if (HT32_LIB_DEBUG == 1)

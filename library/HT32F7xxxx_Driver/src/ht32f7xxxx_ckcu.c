@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_ckcu.c
- * @version $Rev:: 222          $
- * @date    $Date:: 2025-05-09 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   This file provides all the Clock Control Unit firmware functions.
  *************************************************************************************************************
  * @attention
@@ -628,7 +628,7 @@ u32 CKCU_GetPLLFrequency(void)
  *          CKCU_PCLK_AFIO, CKCU_PCLK_EXTI, CKCU_PCLK_ADC, CKCU_PCLK_CMP, CKCU_PCLK_OPA, CKCU_PCLK_PGA
  *          CKCU_PCLK_WDTR, CKCU_PCLK_BKPR,
  *          CKCU_PCLK_SCI0, CKCU_PCLK_SCI1,
- *          CKCU_PCLK_I2S,
+ *          CKCU_PCLK_I2S0, CKCU_PCLK_I2S1,
  *          CKCU_PCLK_SCTM0, CKCU_PCLK_SCTM1, CKCU_PCLK_SCTM2, CKCU_PCLK_SCTM3
  *          CKCU_PCLK_PWM0, CKCU_PCLK_PWM1
  *          CKCU_PCLK_AFE, CKCU_PCLK_DAC0, CKCU_PCLK_DAC1, CKCU_PCLK_MIDI
@@ -671,7 +671,7 @@ void CKCU_SetPeripPrescaler(CKCU_PeripPrescaler_TypeDef Perip, CKCU_APBCLKPRE_Ty
  *          CKCU_PCLK_AFIO, CKCU_PCLK_EXTI, CKCU_PCLK_ADC0, CKCU_PCLK_ADC1, CKCU_PCLK_CMP, CKCU_PCLK_OPA, CKCU_PCLK_PGA
  *          CKCU_PCLK_WDTR, CKCU_PCLK_BKPR,
  *          CKCU_PCLK_SCI0, CKCU_PCLK_SCI1,
- *          CKCU_PCLK_I2S,
+ *          CKCU_PCLK_I2S0, CKCU_PCLK_I2S1,
  *          CKCU_PCLK_PWM0, CKCU_PCLK_PWM1
  *          CKCU_PCLK_AFE, CKCU_PCLK_DAC0, CKCU_PCLK_DAC1, CKCU_PCLK_MIDI
  *          CKCU_PCLK_LEDC, CKCU_PCLK_TKEY

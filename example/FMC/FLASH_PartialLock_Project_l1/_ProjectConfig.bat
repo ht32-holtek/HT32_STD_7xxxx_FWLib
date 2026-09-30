@@ -28,7 +28,7 @@ rem rmdir /S /Q "GNU_ARM"
 rem rmdir /S /Q "HT32-IDE"
 rmdir /S /Q "MDK_ARM"
 rem rmdir /S /Q "MDK_ARMv5"
-rmdir /S /Q "MDK_ARMv537"
+rem rmdir /S /Q "MDK_ARMv537"
 rmdir /S /Q "SourceryG++Lite"
 REM ============================================================================
 
@@ -118,6 +118,10 @@ gsar.exe -s"<FilePath>..\ht32f7xxxx_01_it.c</FilePath>:x0a            </File>" -
 gsar.exe -s"TFILENAME" -r"              <FileName>calculate_symbol_MDKv5.o</FileName>" MDK_ARMv5\*.uvprojx -o
 gsar.exe -s"TFILETYPE" -r"              <FileType>3</FileType>" MDK_ARMv5\*.uvprojx -o
 gsar.exe -s"TFILEPATH" -r"              <FilePath>..\calculate_symbol_MDKv5.o</FilePath>" MDK_ARMv5\*.uvprojx -o
+gsar.exe -s"<FilePath>..\ht32f7xxxx_01_it.c</FilePath>:x0a            </File>" -r"<FilePath>..\ht32f7xxxx_01_it.c</FilePath>:x0a            </File>:x0a            <File>:x0aTFILENAME:x0aTFILETYPE:x0aTFILEPATH:x0a            </File>" MDK_ARMv537\*.uvprojx -o
+gsar.exe -s"TFILENAME" -r"              <FileName>calculate_symbol_MDKv537.o</FileName>" MDK_ARMv537\*.uvprojx -o
+gsar.exe -s"TFILETYPE" -r"              <FileType>3</FileType>" MDK_ARMv537\*.uvprojx -o
+gsar.exe -s"TFILEPATH" -r"              <FilePath>..\calculate_symbol_MDKv537.o</FilePath>" MDK_ARMv537\*.uvprojx -o
 
 for /D %%d in (HT32-IDE\Project_*) do (
   gsar.exe -s"	<linkedResources>" -r"	<linkedResources>:x0a		<link>:x0aNAME:x0aTYPE:x0aLOCATIONURI:x0a		</link>" %%d\*.project -o

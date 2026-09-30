@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_pwrcu.c
- * @version $Rev:: 461          $
- * @date    $Date:: 2026-05-21 #$
+ * @version $Rev:: 517          $
+ * @date    $Date:: 2026-09-22 #$
  * @brief   This file provides all the Power Control Unit firmware functions.
  *************************************************************************************************************
  * @attention
@@ -42,15 +42,15 @@
 /** @defgroup PWRCU_Private_Define PWRCU private definitions
   * @{
   */
-#define Set_RTCEN         SetBit_BB((u32)&HT_CKCU->APBCCR1, 6);
-#define Reset_RTCEN       ResetBit_BB((u32)&HT_CKCU->APBCCR1, 6);
+#define Set_RTCEN         SetBit_BB((u32)&HT_CKCU->APBCCR1, 6)
+#define Reset_RTCEN       ResetBit_BB((u32)&HT_CKCU->APBCCR1, 6)
 #define Get_RTCEN         GetBit_BB((u32)&HT_CKCU->APBCCR1, 6)
+
+#define Set_FPDPEN        SetBit_BB((u32)&HT_FLASH->WSCR, 16)
+#define Reset_FPDPEN      ResetBit_BB((u32)&HT_FLASH->WSCR, 16)
 
 #define Set_DPWDN         SetBit_BB((u32)&HT_PWRCU->CR, 1)
 #define Reset_DPWDN       ResetBit_BB((u32)&HT_PWRCU->CR, 1)
-
-#define Set_LDOMODE       SetBit_BB((u32)&HT_PWRCU->CR, 2)
-#define Reset_LDOMODE     ResetBit_BB((u32)&HT_PWRCU->CR, 2)
 
 #define Set_LDOOFF        SetBit_BB((u32)&HT_PWRCU->CR, 3)
 #define Reset_LDOOFF      ResetBit_BB((u32)&HT_PWRCU->CR, 3)
@@ -60,12 +60,6 @@
 
 #define Set_WUP0EN        SetBit_BB((u32)&HT_PWRCU->CR, 8)
 #define Reset_WUP0EN      ResetBit_BB((u32)&HT_PWRCU->CR, 8)
-
-#define Set_FBGOFF        SetBit_BB((u32)&HT_PWRCU->CR, 14)
-#define Reset_FBGOFF      ResetBit_BB((u32)&HT_PWRCU->CR, 14)
-
-#define Set_ULDOOFF       SetBit_BB((u32)&HT_PWRCU->CR, 20)
-#define Reset_ULDOOFF     ResetBit_BB((u32)&HT_PWRCU->CR, 20)
 
 #define Set_DS3SEL        SetBit_BB((u32)&HT_PWRCU->CR, 23)
 #define Reset_DS3SEL      ResetBit_BB((u32)&HT_PWRCU->CR, 23)
@@ -93,6 +87,24 @@
 #define Set_LVDEWEN       SetBit_BB((u32)&HT_PWRCU->LVDCSR, 21)
 #define Reset_LVDEWEN     ResetBit_BB((u32)&HT_PWRCU->LVDCSR, 21)
 
+#define ULDOSEL_LEVEL0    (0x0)
+#define ULDOSEL_LEVEL1    (0x1)
+#define ULDOSEL_LEVEL2    (0x2)
+#define ULDOSEL_LEVEL3    (0x3)
+
+#define Set_ULDOSEL(sel)  do                                                           \
+                          {                                                            \
+                            HT_PWRCU->CR = (HT_PWRCU->CR & CR_ULDO_LEVEL_Msk) | (sel << CR_ULDO_LEVEL_Pos); \
+                          } while (0)
+
+#define Set_CKSYS_HSI()   do                                                           \
+                          {                                                            \
+                            HT_CKCU->GCCR |= 0x00000800;                               \
+                            while ((HT_CKCU->GCSR & 0x8U) != 0x8U);                    \
+                            HT_CKCU->GCCR  = (HT_CKCU->GCCR & (~0x7U)) | 0x3U;         \
+                            while ((HT_CKCU->CKST & 0x7U) != 0x3U);                    \
+                          } while (0)
+
 #define SLEEPDEEP_SET     0x04      /*!< Cortex SLEEPDEEP bit                                               */
 
 #define PWRRST_SET        0x1
@@ -101,10 +113,6 @@
 #define WUP0TYPE_MASK     0xFFFCFFFF
 #define WUP1TYPE_MASK     0xFFF3FFFF
 #define LVDS_MASK         0xFFB9FFFF
-
-/* PWRCU LDO Level mask                                                                                     */
-#define CR_LDO_LEVEL_Pos  4
-#define CR_LDO_LEVEL_Msk  ~(3 << CR_LDO_LEVEL_Pos)
 
 /* PWRCU ULDO Level mask                                                                                    */
 #define CR_ULDO_LEVEL_Pos 12
@@ -125,8 +133,8 @@
 void PWRCU_DeInit(void)
 {
   HT_PWRCU->CR = PWRRST_SET;
-  while(HT_PWRCU->CR & 0xFFFFEFFF); /* Skip Bit 12 because it isn't of valuable reference.                  */
-  while (HT_PWRCU->SR);    /* Waits until the PWRPORF be cleared by read                                    */
+  while (HT_PWRCU->CR & 0xFFFFCFFF); /* Skip Bit 12, 13 because they aren't of valuable reference           */
+  while (HT_PWRCU->SR);              /* Waits until the PWRPORF be cleared by read                          */
 }
 
 /*********************************************************************************************************//**
@@ -238,15 +246,16 @@ void PWRCU_DeepSleep1(PWRCU_SLEEP_ENTRY_Enum SleepEntry)
   uRTCStatus = Get_RTCEN;
   Set_RTCEN;
 
-  Reset_LDOOFF;
-
-  /* Sets SLEEPDEEP bit of Cortex System Control Register                                                   */
-  SCB->SCR |= SLEEPDEEP_SET;
+  Set_ULDOSEL(ULDOSEL_LEVEL0);      // Set ULDO to level 0
+  Reset_LDOOFF;                     // Switch to ULDO in Sleep
 
   if (uRTCStatus == 0)
   {
     Reset_RTCEN;
   }
+
+  /* Sets SLEEPDEEP bit of Cortex System Control Register                                                   */
+  SCB->SCR |= SLEEPDEEP_SET;
 
   if (SleepEntry == PWRCU_SLEEP_ENTRY_WFE)
   {
@@ -280,10 +289,10 @@ void PWRCU_DeepSleep2(PWRCU_SLEEP_ENTRY_Enum SleepEntry)
 
   uRTCStatus = Get_RTCEN;
   Set_RTCEN;
-  Reset_LDOOFF;
 
-  HT_FLASH->WSCR |= (1 << 16);      // enable flash deep power down
-  Set_FBGOFF;                       // enable flash bandgap off
+  Set_ULDOSEL(ULDOSEL_LEVEL1);      // Set ULDO to level 1
+  Reset_LDOOFF;                     // Switch to ULDO in Sleep
+  Set_FPDPEN;                       // Enable Flash Deep Power Down
 
   if (uRTCStatus == 0)
   {
@@ -306,9 +315,17 @@ void PWRCU_DeepSleep2(PWRCU_SLEEP_ENTRY_Enum SleepEntry)
     __WFI();
   }
 
-  HT_FLASH->WSCR &= ~(1 << 16);     // disable flash deep power down
-  Reset_FBGOFF;                     // disable flash bandgap off
   SCB->SCR &= ~(u32)SLEEPDEEP_SET;
+
+  Set_RTCEN;
+
+  Set_ULDOSEL(ULDOSEL_LEVEL0);      // Restore ULDO to level 0
+  Reset_FPDPEN;                     // Disable Flash Deep Power Down
+
+  if (uRTCStatus == 0)
+  {
+    Reset_RTCEN;
+  }
 }
 
 #if (LIBCFG_PWRCU_DEEPSLEEP3)
@@ -329,8 +346,10 @@ void PWRCU_DeepSleep3(PWRCU_SLEEP_ENTRY_Enum SleepEntry)
   uRTCStatus = Get_RTCEN;
   Set_RTCEN;
 
-  Reset_LDOOFF;
-  Set_DS3SEL;
+  Set_ULDOSEL(ULDOSEL_LEVEL2);      // Set ULDO to level 2
+  Reset_LDOOFF;                     // Switch to ULDO in Sleep
+  Set_DS3SEL;                       // Select Deep-Sleep3 Mode and LSI off
+  Set_FPDPEN;                       // Enable Flash Deep Power Down
 
   if (uRTCStatus == 0)
   {
@@ -356,7 +375,11 @@ void PWRCU_DeepSleep3(PWRCU_SLEEP_ENTRY_Enum SleepEntry)
   SCB->SCR &= ~(u32)SLEEPDEEP_SET;
 
   Set_RTCEN;
-  Reset_DS3SEL;
+
+  Set_ULDOSEL(ULDOSEL_LEVEL0);      // Restore ULDO to level 0
+  Reset_DS3SEL;                     // Keep normal Deep-Sleep Mode
+  Reset_FPDPEN;                     // Disable Flash Deep Power Down
+
   if (uRTCStatus == 0)
   {
     Reset_RTCEN;
@@ -375,14 +398,15 @@ void PWRCU_PowerDown(void)
   uRTCStatus = Get_RTCEN;
   Set_RTCEN;
 
-  Set_LDOOFF;
-
-  Set_FPSWOFF;                      // enable flash power off
+  Set_LDOOFF;                       // Disable LDO and ULDO in Sleep
+  Set_FPSWOFF;                      // Enable Flash Power Off
 
   if (uRTCStatus == 0)
   {
     Reset_RTCEN;
   }
+
+  Set_CKSYS_HSI();                  // Switch System Clock Source to HSI
 
   /* Sets SLEEPDEEP bit of Cortex System Control Register                                                   */
   SCB->SCR |= SLEEPDEEP_SET;
@@ -404,15 +428,16 @@ void PWRCU_DeepPowerDown(void)
   uRTCStatus = Get_RTCEN;
   Set_RTCEN;
 
-  Set_LDOOFF;
-
-  Set_FPSWOFF;                      // enable flash power off & LSI off
-  Set_DPWDN;
+  Set_LDOOFF;                       // Disable LDO and ULDO in Sleep
+  Set_FPSWOFF;                      // Enable Flash Power Off
+  Set_DPWDN;                        // Set MCU into the Deep Power-Down Mode and LSI off
 
   if (uRTCStatus == 0)
   {
     Reset_RTCEN;
   }
+
+  Set_CKSYS_HSI();                  // Switch System Clock Source to HSI
 
   /* Sets SLEEPDEEP bit of Cortex System Control Register                                                   */
   SCB->SCR |= SLEEPDEEP_SET;
@@ -528,39 +553,6 @@ FlagStatus PWRCU_GetBODFlagStatus(void)
 }
 
 /*********************************************************************************************************//**
- * @brief Configure the LDO operation mode.
- * @param Sel: Specify the LDO mode.
- *   This parameter can be one of the following values:
- *     @arg PWRCU_LDO_NORMAL     : The LDO is operated in normal current mode
- *     @arg PWRCU_LDO_LOWCURRENT : The LDO is operated in low current mode
- * @retval None
- ************************************************************************************************************/
-void PWRCU_LDOConfig(PWRCU_LDOMODE_Enum Sel)
-{
-  u32 uRTCStatus = 0;
-
-  /* Check the parameters                                                                                   */
-  Assert_Param(IS_PWRCU_LDOMODE(Sel));
-
-  uRTCStatus = Get_RTCEN;
-  Set_RTCEN;
-
-  if (Sel == PWRCU_LDO_NORMAL)
-  {
-    Reset_LDOMODE;
-  }
-  else
-  {
-    Set_LDOMODE;
-  }
-
-  if (uRTCStatus == 0)
-  {
-    Reset_RTCEN;
-  }
-}
-
-/*********************************************************************************************************//**
  * @brief Enable or Disable the LVD interrupt wakeup function.
  * @param NewState: This parameter can be ENABLE or DISABLE.
  * @retval None
@@ -618,53 +610,6 @@ void PWRCU_WakeupPinCmd(ControlStatus NewState)
   {
     Reset_WUP0EN;
   }
-}
-
-/*********************************************************************************************************//**
- * @brief Configure the LDO output voltage level.
- * @param Level : The LDO default output voltage offset.
- *   This parameter can be one of the following values:
- *     @arg PWRCU_LDO_LEVEL0
- *     @arg PWRCU_LDO_LEVEL1
- *     @arg PWRCU_LDO_LEVEL2
- *     @arg PWRCU_LDO_LEVEL3
- * @retval None
- ************************************************************************************************************/
-void PWRCU_LDOOutputVoltageConfig(PWRCU_LDO_LEVEL_TypeDef Level)
-{
-  u32 uTmpReg;
-  uTmpReg = HT_PWRCU->CR & CR_LDO_LEVEL_Msk;
-  uTmpReg |= (Level << CR_LDO_LEVEL_Pos);
-  HT_PWRCU->CR = uTmpReg;
-}
-
-/*********************************************************************************************************//**
- * @brief Configure the ULDO(Ultra-low Power) output voltage level.
- * @param Level : The ULDO default output voltage offset.
- *   This parameter can be one of the following values:
- *     @arg PWRCU_ULDO_LEVEL0
- *     @arg PWRCU_ULDO_LEVEL1
- *     @arg PWRCU_ULDO_LEVEL2
- *     @arg PWRCU_ULDO_LEVEL3
-* @retval None
- ************************************************************************************************************/
-void PWRCU_ULDOOutputVoltageConfig(PWRCU_ULDO_LEVEL_TypeDef Level)
-{
-  u32 uTmpReg;
-  uTmpReg = HT_PWRCU->CR & CR_ULDO_LEVEL_Msk;
-  uTmpReg |= (Level << CR_ULDO_LEVEL_Pos);
-  HT_PWRCU->CR = uTmpReg;
-}
-
-/*********************************************************************************************************//**
- * @brief Force the Ultra-low Power to turn off.
- * @retval None
- * @note !!! This bit ULDOOFF will be clear to 0 when the MCU is into the Power-Down or Deep Power-Down mode,
-         VDD power domain reset.
- ************************************************************************************************************/
-void PWRCU_ForceTurnOffULDO(void)
-{
-  Set_ULDOOFF;
 }
 
 /**

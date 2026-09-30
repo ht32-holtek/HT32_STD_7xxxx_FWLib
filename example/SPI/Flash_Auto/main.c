@@ -1,6 +1,6 @@
 /*********************************************************************************************************//**
- * @file    FMC/FLASH_PartialLock_Project_l1/main.c
- * @version $Rev:: 518          $
+ * @file    SPI/Flash_Auto/main.c
+ * @version $Rev:: 519          $
  * @date    $Date:: 2026-09-23 #$
  * @brief   Main program.
  *************************************************************************************************************
@@ -33,44 +33,42 @@
   * @{
   */
 
-/** @addtogroup FMC_Examples FMC
+/** @addtogroup SPI_Examples SPI
   * @{
   */
 
-/** @addtogroup FLASH_PartialLock_Project_l1
+/** @addtogroup Flash_Auto
   * @{
   */
 
 
 /* Private constants ---------------------------------------------------------------------------------------*/
+#define FLASH_TEST_SIZE                           (256)       // Shall be less or equal to the sector size
+                                                              // (erase size in one time)
+#define FLASH_TEST_ADDR                           (0x100000)
 
 /* Private function prototypes -----------------------------------------------------------------------------*/
-void Calculate_Test(void);
-void Calculate_Function(void);
+void Flash_Test(void);
+void Flash_Verify(void);
+void Flash_BlankCheck(void);
 
 /* Global variables ----------------------------------------------------------------------------------------*/
-s32 data[] = {-1, -2, -3, -4, -5, -6, -7, -8, -9};
-u32 datasize = sizeof(data)/sizeof(s32);
+vu32 gFLASH_ID = 0;
+u8 gWrite_Buffer[FLASH_TEST_SIZE];
+__ALIGN4 u8 gRead_Buffer[FLASH_TEST_SIZE];
 
 /* Global functions ----------------------------------------------------------------------------------------*/
-extern FlagStatus CalculateTest(void);
-extern s32 S32Sum(s32 *data, u32 size);
-
 /*********************************************************************************************************//**
   * @brief  Main program.
   * @retval None
   ***********************************************************************************************************/
 int main(void)
 {
-  RETARGET_Configuration();
+  HT32_DVB_LEDInit(HT_LED1);
+  HT32_DVB_LEDInit(HT_LED2);
+  HT32_DVB_LEDInit(HT_LED3);
 
-  if (FLASH_GetPartialLockStatus() == RESET)
-  {
-    while(1); /* Partial Lock is either not activated or failed to take effect.                             */
-  }
-
-  Calculate_Test();
-  Calculate_Function();
+  Flash_Test();
 
   while (1)
   {
@@ -78,35 +76,101 @@ int main(void)
 }
 
 /*********************************************************************************************************//**
-  * @brief  Verify the calculate
+  * @brief  SPI Flash Test Function.
   * @retval None
   ***********************************************************************************************************/
-void Calculate_Test(void)
+void Flash_Test(void)
 {
-  if(CalculateTest() == RESET)
+  u32 i;
+  u32 result;
+
+  /* Prepare test pattern                                                                                   */
+  for (i = 0; i < FLASH_TEST_SIZE; i++)
   {
-    while(1); /* Algorithm test failed.                                                                     */
+    gWrite_Buffer[i] = i;
   }
-  printf("Calculate test PASS.");
+
+  /* Init and check Flash ID, turn on LED1 if success                                                       */
+  result = SPI_FLASH_Init();
+  if (result == TRUE)
+  {
+    /* Turn on LED1                                                                                         */
+    HT32_DVB_LEDOn(HT_LED1);
+  }
+  else
+  {
+    /* Turn off LED1                                                                                        */
+    HT32_DVB_LEDOff(HT_LED1);
+  }
+
+  /* Read SPI Flash ID                                                                                      */
+  gFLASH_ID = SPI_FLASH_ReadJEDECID();
+
+  /* Must clear the Block Protection bit before write or erase operation                                    */
+  SPI_FLASH_WriteStatus(0x00);
+
+  /* Sector Erase                                                                                           */
+  SPI_FLASH_SectorErase(FLASH_TEST_ADDR);
+
+  /* Write and Dual Read (for verify)                                                                       */
+  SPI_FLASH_BufferWrite(gWrite_Buffer, FLASH_TEST_ADDR, FLASH_TEST_SIZE);
+  SPI_FLASH_BufferDualRead((u16*)gRead_Buffer, FLASH_TEST_ADDR, FLASH_TEST_SIZE/2);
+  Flash_Verify();
+
+  /* Sector Erase                                                                                           */
+  SPI_FLASH_SectorErase(FLASH_TEST_ADDR);
+
+  /* Read and Blank check                                                                                   */
+  SPI_FLASH_BufferRead(gRead_Buffer, FLASH_TEST_ADDR, FLASH_TEST_SIZE);
+  Flash_BlankCheck();
 }
 
 /*********************************************************************************************************//**
-  * @brief  Use the calculate
+  * @brief  Verify by compare the read buffer with write buffer, turn on LED2 if success.
   * @retval None
   ***********************************************************************************************************/
-void Calculate_Function(void)
+void Flash_Verify(void)
 {
   u32 i;
-  s32 Sum;
+  u32 err = 0;
 
-  for(i=0; i<(datasize-1); i++)
+  /* Check the data of read/write buffer are the same                                                       */
+  for (i = 0; i < FLASH_TEST_SIZE; i++)
   {
-    printf("Data%d = %d,", i, data[i]);
+    if (gRead_Buffer[i] != gWrite_Buffer[i])
+    {
+      err++;
+    }
   }
-  printf("Data%d = %d.\r\n", i, data[i]);
 
-  Sum = S32Sum(data, datasize);
-  printf("Sum = %d.\r\n", Sum);
+  if (err == 0)
+  {
+    HT32_DVB_LEDOn(HT_LED2);
+  }
+}
+
+/*********************************************************************************************************//**
+  * @brief  Blank check by confirm the read buffer, turn on LED3 if success.
+  * @retval None
+  ***********************************************************************************************************/
+void Flash_BlankCheck(void)
+{
+  u32 i;
+  u32 err = 0;
+
+  /* Confirm the data of read buffer are all 0xFF                                                           */
+  for (i = 0; i < FLASH_TEST_SIZE; i++)
+  {
+    if (gRead_Buffer[i] != 0xFF)
+    {
+      err++;
+    }
+  }
+
+  if (err == 0)
+  {
+    HT32_DVB_LEDOn(HT_LED3);
+  }
 }
 
 #if (HT32_LIB_DEBUG == 1)

@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_rng.h
- * @version $Rev:: 305          $
- * @date    $Date:: 2025-09-09 #$
+ * @version $Rev:: 506          $
+ * @date    $Date:: 2026-09-16 #$
  * @brief   The header file of the RNG library.
  *************************************************************************************************************
  * @attention
@@ -82,17 +82,11 @@ typedef struct
 #define RNG_INVLEN_LONG                         0x00000004
 #define RNG_INVLEN_LONGEST                      0x00000006
 
-#define RNG_INVLEN                              RNG_INVLEN_LONG
+#define RNG_INVLEN                              RNG_INVLEN_LONGEST
 #define RNG_CYCNUM                              0x0000015E
 
 #define RNG_FLAG_VALID                          (0x00000001)
 #define RNG_INT_VALID                           (0x00000001)
-#define RNG_FLAG_AUCO                           (0x00000002)
-#define RNG_INT_AUCO                            (0x00000002)
-#define RNG_FLAG_CRNGT                          (0x00000004)
-#define RNG_INT_CRNGT                           (0x00000004)
-#define RNG_FLAG_VNE                            (0x00000008)
-#define RNG_INT_VNE                             (0x00000008)
 
 /**
   * @}

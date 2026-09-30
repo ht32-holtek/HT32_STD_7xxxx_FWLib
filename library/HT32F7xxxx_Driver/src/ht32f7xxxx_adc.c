@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_adc.c
- * @version $Rev:: 462          $
- * @date    $Date:: 2026-05-21 #$
+ * @version $Rev:: 503          $
+ * @date    $Date:: 2026-09-16 #$
  * @brief   This file provides all the ADC firmware functions.
  *************************************************************************************************************
  * @attention
@@ -46,9 +46,6 @@
 #define ADC_SOFTWARE_RESET   (0x00000040)
 #define LST_SEQ_SET          (0x0000001F)
 #define TCR_SC_SET           (0x00000001)
-
-#define HLST_SEQ_SET         (0x0000001F)
-#define HTCR_SC_SET          (0x00000001)
 
 #define ADC_VREF_MVDDAEN     (0x00000100)
 /**

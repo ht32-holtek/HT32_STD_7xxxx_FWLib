@@ -113,7 +113,7 @@ void RAMECC_Cmd(ControlStatus NewState)
  *   This parameter can be any combination of the following values:
  *     @arg RAMECC_INT_ECCSEIE        :
  *     @arg RAMECC_INT_ECCDEIE        :
- *     @arg RAMECC_INT_ECCNMIIE       :
+ *     @arg RAMECC_INT_ECCNMIE        :
  * @param NewState: This parameter can be ENABLE or DISABLE.
  * @retval None
  *************************************************************************************************************/

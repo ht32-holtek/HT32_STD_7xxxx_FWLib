@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    SPI/Slave/ht32_board_config.h
- * @version $Rev:: 316          $
- * @date    $Date:: 2025-09-10 #$
+ * @version $Rev:: 487          $
+ * @date    $Date:: 2026-06-03 #$
  * @brief   The header file of board configuration.
  *************************************************************************************************************
  * @attention
@@ -54,7 +54,7 @@
   #define HTCFG_SLAVE_SPI_SEL_AFIO_PIN         (GPIO_PIN_0)
   #define HTCFG_SLAVE_CLK(CK)                  (CK.Bit.PE)
 
-  #define HTCFG_EXTI_KEY1_IRQHandler           (EXTI0_1_IRQHandler)
+  #define HTCFG_EXTI_KEY1_IRQHandler           (EXTI4_15_IRQHandler)
 #endif
 
 #define HTCFG_SLAVE_SPI                        STRCAT2(HT_,              HTCFG_SPI_IPN)

@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    USBD/USB_UAC_Sound_RateControl/main.c
- * @version $Rev:: 293          $
- * @date    $Date:: 2025-09-03 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   The main program of USB Device Audio example.
  *************************************************************************************************************
  * @attention
@@ -139,11 +139,11 @@ void I2S_MainRoutine(void)
 {
   if (UAC_bMuteControl == 0x00)
   {
-    I2S_TxMuteCmd(DISABLE);
+    I2S_TxMuteCmd(HT_I2S0, DISABLE);
   }
   else
   {
-    I2S_TxMuteCmd(ENABLE);
+    I2S_TxMuteCmd(HT_I2S0, ENABLE);
   }
 
   if (gI2S_RateProcessDownCnt == 0)
@@ -183,18 +183,18 @@ void I2S_MainRoutine(void)
 
       if (I2S_CurrentRateContronIndex > 0)
       {
-        HT_I2S->CR |= I2S_RCSEL;
-        HT_I2S->RCNTR = I2S_RateControlCounterTable[I2S_CurrentRateContronIndex - 1];
+        HT_I2S0->CR |= I2S_RCSEL;
+        HT_I2S0->RCNTR = I2S_RateControlCounterTable[I2S_CurrentRateContronIndex - 1];
       }
       else if (I2S_CurrentRateContronIndex < 0)
       {
         int tmp = 0 - I2S_CurrentRateContronIndex;
-        HT_I2S->CR &= ~I2S_RCSEL;
-        HT_I2S->RCNTR = I2S_RateControlCounterTable[tmp - 1];
+        HT_I2S0->CR &= ~I2S_RCSEL;
+        HT_I2S0->RCNTR = I2S_RateControlCounterTable[tmp - 1];
       }
       else
       {
-        HT_I2S->RCNTR = 0;
+        HT_I2S0->RCNTR = 0;
       }
     }
 
@@ -408,7 +408,7 @@ void CKCU_Configuration(void)
   CKCUClock.Bit.USBD          = 1;
   CKCUClock.Bit.AFIO          = 1;
   CKCUClock.Bit.EXTI          = 1;
-  CKCUClock.Bit.I2S           = 1;
+  CKCUClock.Bit.I2S0          = 1;
   HTCFG_I2CM_CKCU(CKCUClock)  = 1;
   CKCU_PeripClockConfig(CKCUClock, ENABLE);
 #endif
@@ -461,9 +461,9 @@ void NVIC_Configuration(void)
   NVIC_SetPriority(PDMACH2_5_IRQn, 0);
   NVIC_SetPriority(HTCFG_I2CM_IRQ, 2);
   NVIC_SetPriority(USB_IRQn, 2);
-  NVIC_SetPriority(I2S_IRQn, 3);
+  NVIC_SetPriority(I2S0_IRQn, 3);
 
-  NVIC_EnableIRQ(I2S_IRQn);
+  NVIC_EnableIRQ(I2S0_IRQn);
   NVIC_EnableIRQ(PDMACH2_5_IRQn);
   NVIC_EnableIRQ(HTCFG_I2CM_IRQ);
 }
@@ -575,17 +575,17 @@ void I2S_Configuration(void)
   I2S_InitStructure.I2S_X_Div = HTCFG_I2S_X_DIV;                // MCLK = (PCLK * X_DIV / Y_DIV) / 2 = about 12.288 MHz (256 x 48 kHz, WM8978 required the MCLK = 256 fs)
   I2S_InitStructure.I2S_Y_Div = HTCFG_I2S_Y_DIV;
   I2S_InitStructure.I2S_N_Div = 256 / (2 * 16) - 1;             // BCLK = MCLK / 8 = about 1536 kHz (32 x 48 kHz, 2 CH x 16-bit = 32 fs)
-  I2S_Init(&I2S_InitStructure);
+  I2S_Init(HT_I2S0, &I2S_InitStructure);
 
-  I2S_FIFOTrigLevelConfig(I2S_TX_FIFO, 4);  // Tx FIFO data '<' or '=' 3
-  I2S_PDMACmd(I2S_PDMAREQ_TX, ENABLE);
+  I2S_FIFOTrigLevelConfig(HT_I2S0, I2S_TX_FIFO, 4);  // Tx FIFO data '<' or '=' 3
+  I2S_PDMACmd(HT_I2S0, I2S_PDMAREQ_TX, ENABLE);
 
-  I2S_IntConfig(I2S_INT_TXFIFO_UDF, ENABLE);
+  I2S_IntConfig(HT_I2S0, I2S_INT_TXFIFO_UDF, ENABLE);
 
-  I2S_Cmd(ENABLE);
+  I2S_Cmd(HT_I2S0, ENABLE);
 
   /* Enable I2S Rate Control                                                                                */
-  HT_I2S->CR |= I2S_RCEN;
+  HT_I2S0->CR |= I2S_RCEN;
 }
 
 /*********************************************************************************************************//**
@@ -600,7 +600,7 @@ void PDMA_Configuration(void)
   */
   PDMACH_InitTypeDef PDMACH_InitStructure;
   PDMACH_InitStructure.PDMACH_SrcAddr = (u32)&TxBuf[0][0];
-  PDMACH_InitStructure.PDMACH_DstAddr = (u32)&HT_I2S->TXDR;
+  PDMACH_InitStructure.PDMACH_DstAddr = (u32)&HT_I2S0->TXDR;
   PDMACH_InitStructure.PDMACH_AdrMod = (SRC_ADR_LIN_INC | DST_ADR_FIX | AUTO_RELOAD);
   PDMACH_InitStructure.PDMACH_BlkCnt = BUF_SIZE / 4;
   PDMACH_InitStructure.PDMACH_BlkLen = 4;

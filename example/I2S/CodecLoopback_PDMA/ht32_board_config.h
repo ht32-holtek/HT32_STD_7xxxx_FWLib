@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    I2S/CodecLoopback_PDMA/ht32_board_config.h
- * @version $Rev:: 329          $
- * @date    $Date:: 2025-09-15 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   The header file of board configuration.
  *************************************************************************************************************
  * @attention
@@ -33,7 +33,7 @@
 #endif
 
 /* Settings ------------------------------------------------------------------------------------------------*/
-#if (LIBCFG_I2S)
+#if (LIBCFG_I2S0 || LIBCFG_I2S1)
 #else
   #error "This example code does not apply to the chip you selected."
 #endif
@@ -52,6 +52,7 @@
   #define HTCFG_I2C_SCL_GPIOX                     B
   #define HTCFG_I2C_SCL_GPION                     15
 
+  #define HTCFG_I2S_IPN                           I2S0
   #define HTCFG_I2S_SDO_GPIOX                     D
   #define HTCFG_I2S_SDO_GPION                     9
   #define HTCFG_I2S_SDI_GPIOX                     D
@@ -68,6 +69,12 @@
 
   #define HTCFG_I2S_MUSIC_X_DIV                   (86)
   #define HTCFG_I2S_MUSIC_Y_DIV                   (252)
+
+  #define HTCFG_PDMA_PORT                         HT_PDMA
+  #define HTCFG_I2S_TX_PDMA_CH                    PDMA_I2S0_TX
+  #define HTCFG_I2S_RX_PDMA_CH                    PDMA_I2S0_RX
+  #define HTCFG_I2S_RX_PDMA_CH_IRQn               PDMACH0_1_IRQn
+  #define HTCFG_I2S_RX_PDMA_CH_IRQHandler         PDMA_CH0_1_IRQHandler
 #endif
 
 #define HTCFG_I2C_PORT                            STRCAT2(HT_, HTCFG_I2C_IPN)
@@ -78,6 +85,9 @@
 #define HTCFG_I2C_SDA_AFIO_PIN                    STRCAT2(AFIO_PIN_, HTCFG_I2C_SDA_GPION)
 #define HTCFG_I2C_SCL_GPIO_ID                     STRCAT2(GPIO_P,    HTCFG_I2C_SCL_GPIOX)
 #define HTCFG_I2C_SCL_AFIO_PIN                    STRCAT2(AFIO_PIN_, HTCFG_I2C_SCL_GPION)
+
+#define HTCFG_I2S_PORT                            STRCAT2(HT_, HTCFG_I2S_IPN)
+#define HTCFG_I2S_IRQn                            STRCAT2(HTCFG_I2S_IPN, _IRQn)
 
 #define HTCFG_I2S_SDO_GPIO_ID                     STRCAT2(GPIO_P,    HTCFG_I2S_SDO_GPIOX)
 #define HTCFG_I2S_SDO_AFIO_PIN                    STRCAT2(AFIO_PIN_, HTCFG_I2S_SDO_GPION)

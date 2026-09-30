@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_flash.c
- * @version $Rev:: 235          $
- * @date    $Date:: 2025-05-15 #$
+ * @version $Rev:: 507          $
+ * @date    $Date:: 2026-09-16 #$
  * @brief   This file provides all the FLASH firmware functions.
  *************************************************************************************************************
  * @attention
@@ -69,9 +69,6 @@
 
 #define FLASH_EATF_Msk                (~(0x3UL << 8))
 
-#define FLASH_FLVCNTL_ON              (0x00020000)
-#define FLASH_FLVCNTL_OFF             (0xFFFDFFFF)
-
 /**
   * @}
   */
@@ -106,7 +103,7 @@
 /**
  * @brief Check parameter of the FLASH interrupt status.
  */
-#define IS_FLASH_WC_FLAG(FLAG)        ((FLAG & 0x0000001F) != 0)
+#define IS_FLASH_WC_FLAG(FLAG)        ((FLAG & 0x0000003F) != 0)
 
 /**
  * @brief Check parameter of the FLASH interrupt flag.
@@ -531,7 +528,9 @@ void FLASH_ProgramPartialLockOptionByte(FLASH_PartialLockOptionByte *Option)
  * @brief Return Partial Lock status of the FLASH.
  * @param Option: Struct pointer of Partial Lock Option Bytes.
  * @retval None
- * @note  The full Option can only be accessed after a key match. (EX: OB_KPCTL_KeyProtectInvalid)
+ * @note - The complete Partial Lock Option Bytes can only be accessed after the specified key has been
+           verified successfully (e.g., OB_KPCTL_KeyProtectInvalid).
+ *       - For security reasons, OB_KEY_KeyValue is not returned by this API and is always set to zero.
  ************************************************************************************************************/
 void FLASH_GetPartialLockOptionByte(FLASH_PartialLockOptionByte *Option)
 {
@@ -544,7 +543,7 @@ void FLASH_GetPartialLockOptionByte(FLASH_PartialLockOptionByte *Option)
   Option->RegionOPT = 0;
   for(i=0; i<4; i++)
   {
-    Option->OB_KEY_KeyValue[i] = HT_FLASH->KPPPSR[i];
+    Option->OB_KEY_KeyValue[i] = 0x00000000;
     Option->OB_KPPP_KeyProtectPage[i] = HT_FLASH->KPPPSR[i];
     Option->RegionOPT |= ((HT_FLASH->PREGSR >> (i * 4)) & 0x1) << i;
     Option->Region[i].OB_MPREGCR_Control = ~(HT_FLASH->PREGSR >> (i * 4)) & 0x1;
@@ -616,27 +615,6 @@ u32 FLASH_GetMismatchCount(void)
   u32 MismatchCount;
   MismatchCount = HT_FLASH->EKEYCNTR & 0xFF;
   return MismatchCount;
-}
-
-/*********************************************************************************************************//**
- * @brief Enable or Disable Flash Low Voltage Read.
- * @param NewState: This parameter can be ENABLE or DISABLE
- * @retval None
- * @note This configuration ensures reliable Flash access when powered by LDO or ULDO at 0.9 V.
- ************************************************************************************************************/
-void FLASH_LowVoltageReadCmd(ControlStatus NewState)
-{
-  /* Check the parameters                                                                                   */
-  Assert_Param(IS_CONTROL_STATUS(NewState));
-
-  if (NewState != DISABLE)
-  {
-    HT_FLASH->WSCR |= FLASH_FLVCNTL_ON;
-  }
-  else
-  {
-    HT_FLASH->WSCR &= FLASH_FLVCNTL_OFF;
-  }
 }
 /**
   * @}

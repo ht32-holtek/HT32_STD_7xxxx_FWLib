@@ -19,6 +19,14 @@ protection mechanism.
 The flow includes checking whether Partial Lock is enabled, verifying valid code execution and data
 access in the ICODE/DCODE regions, and performing invalid access tests to confirm the protection response.
 
+This example uses the Execute Only feature:
+  For MDK_ARMv537:
+    The Execute Only feature is supported for the Armv6-M (Cortex-M0+) architecture only in
+    MDK-ARM v5.39 (Arm Compiler 6.21) and later versions.
+  For GNU_ARM:
+    The Execute Only feature is supported for the Armv6-M (Cortex-M0+) architecture only in
+    GCC 8.1 and later versions.
+
 @par Directory Contents:
 
 - FMC/FLASH_PartialLock_IDCODE/main.c               Main program

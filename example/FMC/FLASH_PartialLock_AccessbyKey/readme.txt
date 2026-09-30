@@ -22,10 +22,10 @@ Flow:
 
 @par Directory Contents:
 
-- FMC/FLASH_PartialLock_IDCODE/main.c               Main program
-- FMC/FLASH_PartialLock_IDCODE/ht32fxxxxx_nn_it.c   Interrupt handlers
-- FMC/FLASH_PartialLock_IDCODE/linker.lin,icf,ld    Linker script
-- FMC/FLASH_PartialLock_IDCODE/accessbykey.c        Partial lock "Access by key" region function and parameters
+- FMC/FLASH_PartialLock_AccessbyKey/main.c               Main program
+- FMC/FLASH_PartialLock_AccessbyKey/ht32fxxxxx_nn_it.c   Interrupt handlers
+- FMC/FLASH_PartialLock_AccessbyKey/linker.lin,icf,ld    Linker script
+- FMC/FLASH_PartialLock_AccessbyKey/accessbykey.c        Partial lock "Access by key" region function and parameters
 
 @par Hardware and Software Environment:
 

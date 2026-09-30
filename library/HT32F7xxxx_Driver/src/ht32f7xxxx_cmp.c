@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_cmp.c
- * @version $Rev:: 79           $
- * @date    $Date:: 2025-02-10 #$
+ * @version $Rev:: 502          $
+ * @date    $Date:: 2026-09-16 #$
  * @brief   This file provides all the CMP firmware functions.
  *************************************************************************************************************
  * @attention
@@ -94,10 +94,10 @@ void CMP_Init(HT_CMP_TypeDef* HT_CMPn, CMP_InitTypeDef* CMP_InitStruct)
   Assert_Param(IS_CMP_Hysteresis_Set(CMP_InitStruct->CMP_Hysteresis));
   Assert_Param(IS_CMP_Speed_Set(CMP_InitStruct->CMP_Speed));
 
-  HT_CMPn->CR |= CMP_InitStruct->CMP_Wakeup | CMP_InitStruct->CMP_OutputSelection | CMP_InitStruct->CMP_ScalerSource | \
-                 CMP_InitStruct->CMP_ScalerOutputBuf | CMP_InitStruct->CMP_ScalerEnable | CMP_InitStruct->CMP_CoutSync | \
-                 CMP_InitStruct->CMP_OutputPol | CMP_InitStruct->CMP_InvInputSelection | CMP_InitStruct->CMP_Hysteresis | \
-                 CMP_InitStruct->CMP_Speed;
+  HT_CMPn->CR = CMP_InitStruct->CMP_Wakeup | CMP_InitStruct->CMP_OutputSelection | CMP_InitStruct->CMP_ScalerSource | \
+                CMP_InitStruct->CMP_ScalerOutputBuf | CMP_InitStruct->CMP_ScalerEnable | CMP_InitStruct->CMP_CoutSync | \
+                CMP_InitStruct->CMP_OutputPol | CMP_InitStruct->CMP_InvInputSelection | CMP_InitStruct->CMP_Hysteresis | \
+                CMP_InitStruct->CMP_Speed;
 }
 
 /*********************************************************************************************************//**

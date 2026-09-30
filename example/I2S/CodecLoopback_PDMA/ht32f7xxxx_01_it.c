@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    I2S/CodecLoopback_PDMA/ht32f7xxxx_01_it.c
- * @version $Rev:: 322          $
- * @date    $Date:: 2025-09-15 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   This file provides all interrupt service routine.
  *************************************************************************************************************
  * @attention
@@ -282,15 +282,15 @@ i2c_master_transfer_error:
  * @brief   This function handles I2S interrupt.
  * @retval  None
  ************************************************************************************************************/
-void I2S_IRQHandler(void)
+void I2S0_IRQHandler(void)
 {
-  if (I2S_GetFlagStatus(I2S_FLAG_TXFIFO_UDF) == SET)
+  if (I2S_GetFlagStatus(HTCFG_I2S_PORT, I2S_FLAG_TXFIFO_UDF) == SET)
   {
     printf(" TU");
     while (1);
   }
 
-  if (I2S_GetFlagStatus(I2S_FLAG_RXFIFO_OVF) == SET)
+  if (I2S_GetFlagStatus(HTCFG_I2S_PORT, I2S_FLAG_RXFIFO_OVF) == SET)
   {
     printf(" RO");
     while (1);
@@ -298,16 +298,16 @@ void I2S_IRQHandler(void)
 }
 
 /*********************************************************************************************************//**
- * @brief   This function handles PDMA CH0~1 interrupt.
+ * @brief   This function handles PDMA CHx I2S RX interrupt.
  * @retval  None
  ************************************************************************************************************/
-void PDMA_CH0_1_IRQHandler(void)
+void HTCFG_I2S_RX_PDMA_CH_IRQHandler(void)
 {
   extern bool IsRxTrigLevelReach;
   extern u8 AltBuf;
-  FlagStatus isTransferComplete = PDMA_GetFlagStatus(PDMA_CH1, PDMA_FLAG_TC);
+  FlagStatus isTransferComplete = PDMA_GetFlagStatus(HTCFG_I2S_RX_PDMA_CH, PDMA_FLAG_TC);
 
-  PDMA_ClearFlag(PDMA_CH1, PDMA_FLAG_GE);
+  PDMA_ClearFlag(HTCFG_I2S_RX_PDMA_CH, PDMA_FLAG_GE);
 
   IsRxTrigLevelReach = TRUE;
   if (isTransferComplete == RESET)

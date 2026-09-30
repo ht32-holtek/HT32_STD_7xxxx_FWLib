@@ -1,8 +1,8 @@
 /***************************************************************************//**
  * @file    ht32f7xxxx_01.h
  * @brief   CMSIS Cortex-M0+ Device Peripheral Access Layer Header File
- * @version $Rev:: 456          $
- * @date    $Date:: 2026-05-05 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  *
  * @note
  * Copyright (C) Holtek Semiconductor Inc. All rights reserved.
@@ -1214,7 +1214,7 @@ typedef struct
 #define HT_RNG_BASE              (HT_APBPERIPH_BASE + 0x21000)    /* 0x40021000                             */
 #define HT_AFIO_BASE             (HT_APBPERIPH_BASE + 0x22000)    /* 0x40022000                             */
 #define HT_EXTI_BASE             (HT_APBPERIPH_BASE + 0x24000)    /* 0x40024000                             */
-#define HT_I2S_BASE              (HT_APBPERIPH_BASE + 0x26000)    /* 0x40026000                             */
+#define HT_I2S0_BASE             (HT_APBPERIPH_BASE + 0x26000)    /* 0x40026000                             */
 #define HT_MCTM_BASE             (HT_APBPERIPH_BASE + 0x2C000)    /* 0x4002C000                             */
 #define HT_PWM0_BASE             (HT_APBPERIPH_BASE + 0x31000)    /* 0x40031000                             */
 #define HT_SCTM0_BASE            (HT_APBPERIPH_BASE + 0x34000)    /* 0x40034000                             */
@@ -1287,7 +1287,7 @@ typedef struct
 #define HT_CMP1                  ((HT_CMP_TypeDef *) HT_CMP1_BASE)
 #define HT_AFIO                  ((HT_AFIO_TypeDef *) HT_AFIO_BASE)
 #define HT_EXTI                  ((HT_EXTI_TypeDef *) HT_EXTI_BASE)
-#define HT_I2S                   ((HT_I2S_TypeDef *) HT_I2S_BASE)
+#define HT_I2S0                  ((HT_I2S_TypeDef *) HT_I2S0_BASE)
 #define HT_WDT                   ((HT_WDT_TypeDef *) HT_WDT_BASE)
 #define HT_RTC                   ((HT_RTC_TypeDef *) HT_RTC_BASE)
 #define HT_PWRCU                 ((HT_PWRCU_TypeDef *) HT_PWRCU_BASE)
@@ -1349,35 +1349,58 @@ typedef struct
 /**
  * @brief Define for backward compatibility
  */
-#define HT_ADC                   HT_ADC0
-#define ADC                      ADC0
-#define ADC_IRQn                 ADC0_IRQn
-#define AFIO_FUN_ADC             AFIO_FUN_ADC0
+#define HT_ADC                              HT_ADC0
+#define ADC                                 ADC0
+#define ADC_IRQn                            ADC0_IRQn
+#define AFIO_FUN_ADC                        AFIO_FUN_ADC0
 
-#define HT_DAC                   HT_DAC0
-#define AFIO_FUN_DAC             AFIO_FUN_DAC0
-#define CKCU_PCLK_DAC            CKCU_PCLK_DAC0
+#define HT_DAC                              HT_DAC0
+#define AFIO_FUN_DAC                        AFIO_FUN_DAC0
+#define CKCU_PCLK_DAC                       CKCU_PCLK_DAC0
 
 #if defined(USE_HT32F72368_78_88)
-  #define AES_IRQn               AES_RNG_I2C2_IRQn
-  #define AES_IRQHandler         AES_RNG_I2C2_IRQHandler
-  #define RNG_IRQn               AES_RNG_I2C2_IRQn
-  #define RNG_IRQHandler         AES_RNG_I2C2_IRQHandler
+  #define CMP0_IRQn                         CMP0_1_DAC_IRQn
+  #define CMP0_IRQHandler                   CMP0_1_DAC_IRQHandler
+  #define CMP1_IRQn                         CMP0_1_DAC_IRQn
+  #define CMP1_IRQHandler                   CMP0_1_DAC_IRQHandler
+  #define DAC_IRQn                          CMP0_1_DAC_IRQn
+  #define DAC_IRQHandler                    CMP0_1_DAC_IRQHandler
 
-  #define GPTM0_IRQn             GPTM_IRQn
-  #define GPTM0_IRQHandler       GPTM_IRQHandler
-  #define MCTM0_IRQn             MCTM_IRQn
-  #define MCTM0_IRQHandler       MCTM_IRQHandler
+  #define AES_IRQn                          AES_RNG_I2C2_IRQn
+  #define AES_IRQHandler                    AES_RNG_I2C2_IRQHandler
+  #define RNG_IRQn                          AES_RNG_I2C2_IRQn
+  #define RNG_IRQHandler                    AES_RNG_I2C2_IRQHandler
+  #define I2C2_IRQn                         AES_RNG_I2C2_IRQn
+  #define I2C2_IRQHandler                   AES_RNG_I2C2_IRQHandler
 
-  #define SCI_IRQn               SCI0_1_CAN0_IRQn
-  #define SCI_IRQHandler         SCI0_1_CAN0_IRQHandler
-  #define CAN0_IRQn              SCI0_1_CAN0_IRQn
-  #define CAN0_IRQHandler        SCI0_1_CAN0_IRQHandler
+  #define UART0_IRQn                        UART0_UART2_IRQn
+  #define UART0_IRQHandler                  UART0_UART2_IRQHandler
+  #define UART2_IRQn                        UART0_UART2_IRQn
+  #define UART2_IRQHandler                  UART0_UART2_IRQHandler
+  #define UART1_IRQn                        UART1_UART3_IRQn
+  #define UART1_IRQHandler                  UART1_UART3_IRQHandler
+  #define UART3_IRQn                        UART1_UART3_IRQn
+  #define UART3_IRQHandler                  UART1_UART3_IRQHandler
 
-  #define I2S_IRQn               I2S_CAN1_IRQn
-  #define I2S_IRQHandler         I2S_CAN1_IRQHandler
-  #define CAN1_IRQn              I2S_CAN1_IRQn
-  #define CAN1_IRQHandler        I2S_CAN1_IRQHandler
+  #define GPTM0_IRQn                        GPTM_IRQn
+  #define GPTM0_IRQHandler                  GPTM_IRQHandler
+  #define MCTM0_IRQn                        MCTM_IRQn
+  #define MCTM0_IRQHandler                  MCTM_IRQHandler
+
+  #define SCI_IRQn                          SCI0_1_CAN0_IRQn
+  #define SCI_IRQHandler                    SCI0_1_CAN0_IRQHandler
+  #define CAN0_IRQn                         SCI0_1_CAN0_IRQn
+  #define CAN0_IRQHandler                   SCI0_1_CAN0_IRQHandler
+
+  #define I2S0_IRQn                         I2S_CAN1_IRQn
+  #define I2S0_IRQHandler                   I2S_CAN1_IRQHandler
+  #define CAN1_IRQn                         I2S_CAN1_IRQn
+  #define CAN1_IRQHandler                   I2S_CAN1_IRQHandler
+
+  #define HT_I2S                            HT_I2S0
+  #define I2S                               I2S0
+  #define I2S_IRQn                          I2S0_IRQn
+  #define I2S_IRQHandler                    I2S0_IRQHandler
 #endif
 
 // ht32f7xxxx_board_01.c

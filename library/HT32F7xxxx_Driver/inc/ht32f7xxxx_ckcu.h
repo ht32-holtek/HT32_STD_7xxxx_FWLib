@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_ckcu.h
- * @version $Rev:: 229          $
- * @date    $Date:: 2025-05-13 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   The header file of the Clock Control Unit library.
  *************************************************************************************************************
  * @attention
@@ -425,7 +425,7 @@ typedef union
     unsigned long            :1;    // Bit 23
 
     unsigned long SCI0       :1;    // Bit 24
-    unsigned long I2S        :1;    // Bit 25
+    unsigned long I2S0       :1;    // Bit 25
     unsigned long            :1;    // Bit 26
     unsigned long SCI1       :1;    // Bit 27
     unsigned long            :1;    // Bit 28
@@ -531,8 +531,8 @@ typedef enum
   #if (LIBCFG_SCI1)
   CKCU_PCLK_SCI1     = (CKCU_APBPCSR1 | 18),
   #endif
-  #if (LIBCFG_I2S)
-  CKCU_PCLK_I2S      = (CKCU_APBPCSR1 | 20),
+  #if (LIBCFG_I2S0)
+  CKCU_PCLK_I2S0     = (CKCU_APBPCSR1 | 20),
   #endif
   #if (LIBCFG_I2C2)
   CKCU_PCLK_I2C2     = (CKCU_APBPCSR1 | 22),

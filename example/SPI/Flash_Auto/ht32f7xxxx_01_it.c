@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
- * @file    PWRCU/RunMode_ULDO_Off/ht32f7xxxx_01_it.c
- * @version $Rev:: 245          $
- * @date    $Date:: 2025-05-22 #$
+ * @file    SPI/Flash_Auto/ht32f7xxxx_01_it.c
+ * @version $Rev:: 520          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   This file provides all interrupt service routine.
  *************************************************************************************************************
  * @attention
@@ -27,17 +27,16 @@
 
 /* Includes ------------------------------------------------------------------------------------------------*/
 #include "ht32.h"
-#include "ht32_board.h"
 
 /** @addtogroup HT32_Series_Peripheral_Examples HT32 Peripheral Examples
   * @{
   */
 
-/** @addtogroup PWRCU_Examples PWRCU
+/** @addtogroup SPI_Examples SPI
   * @{
   */
 
-/** @addtogroup RunMode_ULDO_Off
+/** @addtogroup Flash_Auto
   * @{
   */
 
@@ -123,6 +122,7 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
 }
+
 
 /**
   * @}

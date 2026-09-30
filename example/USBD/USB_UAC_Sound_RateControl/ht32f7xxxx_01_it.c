@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    USBD/USB_UAC_Sound_RateControl/ht32f7xxxx_01_it.c
- * @version $Rev:: 338          $
- * @date    $Date:: 2025-09-17 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   This file provides all interrupt service routine.
  *************************************************************************************************************
  * @attention
@@ -249,15 +249,15 @@ i2c_master_transfer_error:
  * @brief   This function handles I2S interrupt.
  * @retval  None
  ************************************************************************************************************/
-void I2S_IRQHandler(void)
+void I2S0_IRQHandler(void)
 {
-  if (I2S_GetFlagStatus(I2S_FLAG_TXFIFO_UDF) == SET)
+  if (I2S_GetFlagStatus(HT_I2S0, I2S_FLAG_TXFIFO_UDF) == SET)
   {
     printf(" TU");
     while (1);
   }
 
-  if (I2S_GetFlagStatus(I2S_FLAG_RXFIFO_OVF) == SET)
+  if (I2S_GetFlagStatus(HT_I2S0, I2S_FLAG_RXFIFO_OVF) == SET)
   {
     printf(" RO");
     while (1);

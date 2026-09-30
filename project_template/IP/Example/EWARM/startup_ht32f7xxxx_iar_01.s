@@ -6,8 +6,8 @@
 ;/*                                                                                                         */
 ;/*-----------------------------------------------------------------------------------------------------------
 ;  File Name        : startup_ht32f7xxxx_iar_01.s
-;  Version          : $Rev:: 474          $
-;  Date             : $Date:: 2026-06-01 #$
+;  Version          : $Rev:: 484          $
+;  Date             : $Date:: 2026-06-03 #$
 ;  Description      : Startup code.
 ;-----------------------------------------------------------------------------------------------------------*/
 
@@ -138,14 +138,10 @@ PendSV_Handler
 SysTick_Handler
                     B       .
 
-        PUBWEAK FLASH_IRQHandler
-        SECTION .text:CODE:REORDER:NOROOT(1)
-FLASH_IRQHandler
-                    B       .
-
 
         PUBWEAK LVD_BOD_IRQHandler
         PUBWEAK RTC_IRQHandler
+        PUBWEAK FLASH_IRQHandler
         PUBWEAK EVWUP_IRQHandler
         PUBWEAK EXTI0_1_IRQHandler
         PUBWEAK EXTI2_3_IRQHandler
@@ -177,6 +173,7 @@ FLASH_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 LVD_BOD_IRQHandler
 RTC_IRQHandler
+FLASH_IRQHandler
 EVWUP_IRQHandler
 EXTI0_1_IRQHandler
 EXTI2_3_IRQHandler

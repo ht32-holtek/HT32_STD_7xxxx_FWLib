@@ -73,7 +73,7 @@ typedef enum
 
 #define RAMECC_INT_ECCSEIE                         0x00000001
 #define RAMECC_INT_ECCDEIE                         0x00000002
-#define RAMECC_INT_ECCNMIIE                        0x00000004
+#define RAMECC_INT_ECCNMIE                         0x00000004
 
 /**
   * @}

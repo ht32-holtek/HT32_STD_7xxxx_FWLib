@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_i2c.c
- * @version $Rev:: 470          $
- * @date    $Date:: 2026-06-01 #$
+ * @version $Rev:: 495          $
+ * @date    $Date:: 2026-09-08 #$
  * @brief   This file provides all the I2C firmware functions.
  *************************************************************************************************************
  * @attention
@@ -75,10 +75,12 @@
 /* I2C SEQ_FILTER mask                                                                                      */
 #define CR_SEQ_FILTER_Msk        ((u32)0x0001C000)
 
+#if (LIBCFG_I2C_NOSTRETCH)
 /* I2C TXDR_Reset mask                                                                                      */
 #define I2C_NOSTRETCH_SET        ((u32)0x00000040)
 #define I2C_NOSTRETCH_RESET      ((u32)0x00000000)
 #define I2C_NOSTRETCH_MASK       ((u32)0xFFFFFF9F)
+#endif
 
 /**
   * @}
@@ -174,14 +176,14 @@ ErrStatus I2C_Init(HT_I2C_TypeDef* I2Cx, I2C_InitTypeDef* I2C_InitStruct)
   #endif
   PCLK_Freq = CKCU_GetPeripFrequency(PCLK_I2Cx);
 
-  SEQ_FILTER = I2Cx->CR & CR_SEQ_FILTER_Msk;
+  SEQ_FILTER = (I2Cx->CR & CR_SEQ_FILTER_Msk) >> 14;
   if (SEQ_FILTER == SEQ_FILTER_DISABLE)
   {
     sTmp = 6;
   }
   else
   {
-    sTmp = 7 + (SEQ_FILTER >> 14);
+    sTmp = 7 + SEQ_FILTER;
   }
 
   SHPGR = (PCLK_Freq * 9)/(I2C_InitStruct->I2C_Speed * 20) - sTmp - I2C_InitStruct->I2C_SpeedOffset;
@@ -420,8 +422,11 @@ void I2C_SendData(HT_I2C_TypeDef* I2Cx, u8 I2C_Data)
 {
   /* Check the parameters                                                                                   */
   Assert_Param(IS_I2C(I2Cx));
-
+  #if (LIBCFG_I2C_NOSTRETCH)
   I2Cx->TXDR = I2C_Data;
+  #else
+  I2Cx->DR = I2C_Data;
+  #endif
 }
 
 /*********************************************************************************************************//**
@@ -433,8 +438,11 @@ u8 I2C_ReceiveData(HT_I2C_TypeDef* I2Cx)
 {
   /* Check the parameters                                                                                   */
   Assert_Param(IS_I2C(I2Cx));
-
+  #if (LIBCFG_I2C_NOSTRETCH)
   return (u8)I2Cx->RXDR;
+  #else
+  return (u8)I2Cx->DR;
+  #endif
 }
 
 /*********************************************************************************************************//**
@@ -766,9 +774,9 @@ void I2C_CombFilterCmd(HT_I2C_TypeDef* I2Cx, ControlStatus NewState)
 }
 
 /*********************************************************************************************************//**
- * @brief This function is used to determine the filter glitch width of 0~7 PCLK.
+ * @brief This function is used to determine the filter glitch width of 0~2(3~7) PCLK.
  * @param I2Cx: where I2Cx is the selected I2C from the I2C peripherals.
- * @param Seq_Filter_Select: specify the glitch width of 0~7 PCLK.
+ * @param Seq_Filter_Select: specify the glitch width of 0~2(3~7) PCLK.
  *   This parameter can be any combination of the following values:
  *     @arg SEQ_FILTER_DISABLE : sequential filter is disabled
  *     @arg SEQ_FILTER_1_PCLK  : filter glitch width of 1 PCLK
@@ -782,49 +790,49 @@ void I2C_CombFilterCmd(HT_I2C_TypeDef* I2Cx, ControlStatus NewState)
  ************************************************************************************************************/
 void I2C_SequentialFilterConfig(HT_I2C_TypeDef* I2Cx, u32 Seq_Filter_Select)
 {
-  u32 SHPGR = I2Cx->SHPGR;
-  u32 SLPGR = I2Cx->SLPGR;
-  u32 SEQ_FILTER = I2Cx->CR & CR_SEQ_FILTER_Msk;
-  u32 PGR_VALUE;
+  s32 SHPGR = I2Cx->SHPGR;
+  s32 SLPGR = I2Cx->SLPGR;
+  u32 I2CCR = I2Cx->CR;
+  s32 SEQ_FILTER = (I2CCR & CR_SEQ_FILTER_Msk) >> 14;
+  u32 I2CCMD = I2CCR & CR_ENI2C_SET;
+  s32 PGR_VALUE;
 
   /* Check the parameters                                                                                   */
   Assert_Param(IS_I2C(I2Cx));
-  Assert_Param(IS_I2C_SEQ_FILTER_MASK(Seq_Filter_Select));
+  Assert_Param(IS_I2C_SEQ_FILTER(Seq_Filter_Select));
 
-  if (SEQ_FILTER < Seq_Filter_Select)
+  if (I2CCMD)
   {
-    PGR_VALUE = (Seq_Filter_Select - SEQ_FILTER) >> 14;
-    if (SEQ_FILTER == SEQ_FILTER_DISABLE)
-    {
-      PGR_VALUE += 1;
-    }
-    if (SHPGR >= PGR_VALUE)
-    {
-      SHPGR -= PGR_VALUE;
-      SLPGR -= PGR_VALUE;
-    }
-    else
-    {
-      SHPGR = 0;
-      SLPGR = 0;
-    }
-  }
-  else if (SEQ_FILTER > Seq_Filter_Select)
-  {
-    PGR_VALUE = (SEQ_FILTER - Seq_Filter_Select) >> 14;
-    if (Seq_Filter_Select == SEQ_FILTER_DISABLE)
-    {
-      PGR_VALUE += 1;
-    }
-    SHPGR += PGR_VALUE;
-    SLPGR += PGR_VALUE;
+    /* Disable I2C Interface                                                                                */
+    I2Cx->CR &= CR_ENI2C_RESET;
+    I2CCR &= CR_ENI2C_RESET;
   }
 
-  I2Cx->SHPGR = SHPGR;
-  I2Cx->SLPGR = SLPGR;
-  I2Cx->CR = (I2Cx->CR & ~CR_SEQ_FILTER_Msk) | Seq_Filter_Select;
+  PGR_VALUE = SEQ_FILTER - Seq_Filter_Select;
+
+  if (SEQ_FILTER == SEQ_FILTER_DISABLE) PGR_VALUE -= 1;
+  if (Seq_Filter_Select == SEQ_FILTER_DISABLE) PGR_VALUE += 1;
+  SHPGR += PGR_VALUE;
+  SLPGR += PGR_VALUE;
+
+  if (SHPGR < 0)
+  {
+    SHPGR = 0;
+    SLPGR = 0;
+  }
+
+  I2Cx->SHPGR = (u32)SHPGR;
+  I2Cx->SLPGR = (u32)SLPGR;
+  I2Cx->CR = (I2CCR & ~CR_SEQ_FILTER_Msk) | (Seq_Filter_Select << 14);
+
+  /* Restore I2C Interface Status                                                                           */
+  if (I2CCMD)
+  {
+    I2Cx->CR |= I2CCMD;
+  }
 }
 
+#if (LIBCFG_I2C_NOSTRETCH)
 /*********************************************************************************************************//**
  * @brief This function is used to clear TXDR data.
  * @param I2Cx: where I2Cx is the selected I2C from the I2C peripherals.
@@ -835,6 +843,7 @@ void I2C_TXDRReset(HT_I2C_TypeDef* I2Cx)
   I2Cx->CR = (I2Cx->CR & I2C_NOSTRETCH_MASK) | I2C_NOSTRETCH_RESET;
   I2Cx->CR = (I2Cx->CR & I2C_NOSTRETCH_MASK) | I2C_NOSTRETCH_SET;
 }
+#endif
 /**
   * @}
   */

@@ -6,8 +6,8 @@
 /*                                                                                                         */
 /*-----------------------------------------------------------------------------------------------------------
 ;  File Name        : startup_ht32f7xxxx_es_01.s
-;  Version          : $Rev:: 385          $
-;  Date             : $Date:: 2025-09-24 #$
+;  Version          : $Rev:: 484          $
+;  Date             : $Date:: 2026-06-03 #$
 ;  Description      : Startup code.
 ;-----------------------------------------------------------------------------------------------------------*/
 
@@ -158,12 +158,6 @@ SysTick_Handler:
                     B       .
     .size   SysTick_Handler, . - SysTick_Handler
 
-    .weak   FLASH_IRQHandler
-    .type   FLASH_IRQHandler, %function
-FLASH_IRQHandler:
-                    B       .
-    .size   FLASH_IRQHandler, . - FLASH_IRQHandler
-
 
 /* IRQ Handlers */
 
@@ -180,6 +174,7 @@ Default_Handler:
 
     IRQ     LVD_BOD_IRQHandler
     IRQ     RTC_IRQHandler
+    IRQ     FLASH_IRQHandler
     IRQ     EVWUP_IRQHandler
     IRQ     EXTI0_1_IRQHandler
     IRQ     EXTI2_3_IRQHandler

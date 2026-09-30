@@ -21,15 +21,15 @@ REM Remove Project_xxxxx files that do not supported by the example/application 
 REM ============================================================================
 REM For device support, see _ProjectConfig.ini
 
-rmdir /S /Q "emStudiov4"
+rem rmdir /S /Q "emStudiov4"
 rem rmdir /S /Q "EWARM"
 rem rmdir /S /Q "EWARMv8"
 rem rmdir /S /Q "GNU_ARM"
 rem rmdir /S /Q "HT32-IDE"
-rmdir /S /Q "MDK_ARM"
+rem rmdir /S /Q "MDK_ARM"
 rem rmdir /S /Q "MDK_ARMv5"
 rem rmdir /S /Q "MDK_ARMv537"
-rmdir /S /Q "SourceryG++Lite"
+rem rmdir /S /Q "SourceryG++Lite"
 REM ============================================================================
 
 
@@ -73,8 +73,8 @@ REM Note:
 REM     1. HT_EXTRA_CDEFINE shall be separated by comma and space (, )
 REM        Example HT_EXTRA_CDEFINE=DEFINE1, DEFINE2
 REM ============================================================================
-SET HT_CHANGE_CDEFINE=0
-SET HT_EXTRA_CDEFINE=DEFINE1, DEFINE2
+SET HT_CHANGE_CDEFINE=1
+SET HT_EXTRA_CDEFINE=SPI_FLASH_AUTO
 REM ============================================================================
 
 
@@ -104,10 +104,3 @@ rem gsar.exe -s"SEARCH_STRING:x0a" -r"REPLACE_STRING:x0a" SourceryG++Lite\*_FILE
 REM ============================================================================
 rem Edit your code here....
 REM ============================================================================
-copy /Y "_setting\EWARM_ht32_op2.c" "EWARM\ht32_op2.c"
-copy /Y "_setting\EWARM_ht32_op2.c" "EWARMv8\ht32_op2.c"
-copy /Y "_setting\GNU_ht32_op2.c" "GNU_ARM\ht32_op2.c"
-copy /Y "_setting\GNU_ht32_op2.c" "HT32-IDE\GNU_ARM\ht32_op2.c"
-rem copy /Y "_setting\MDK_ht32_op2.s" "MDK_ARM\ht32_op2.s"
-copy /Y "_setting\MDK_ht32_op2.s" "MDK_ARMv5\ht32_op2.s"
-copy /Y "_setting\MDK_ht32_op2.s" "MDK_ARMv537\ht32_op2.s"

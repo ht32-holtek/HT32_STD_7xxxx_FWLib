@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    IP/Example/main.c
- * @version $Rev:: 290          $
- * @date    $Date:: 2025-09-03 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   Main program.
  *************************************************************************************************************
  * @attention
@@ -144,7 +144,7 @@ void CKCU_Configuration(void)
 //  <h> Communication
 //    <q5> EBI
 //    <q11> I2C0   <q12> I2C1
-//    <q23> I2S
+//    <q23> I2S0
 //    <q21> SCI0 <q22> SCI1
 //    <q13> SPI0   <q14> SPI1
 //    <q17> UART0  <q18> UART1
@@ -196,7 +196,7 @@ void CKCU_Configuration(void)
   CKCUClock.Bit.EXTI       = 0;
   CKCUClock.Bit.SCI0       = 0;
   CKCUClock.Bit.SCI1       = 0;
-  CKCUClock.Bit.I2S        = 0;
+  CKCUClock.Bit.I2S0       = 0;
   CKCUClock.Bit.MCTM0      = 0;
   CKCUClock.Bit.WDT        = 0;
   CKCUClock.Bit.BKP        = 0;

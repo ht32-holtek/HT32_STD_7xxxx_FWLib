@@ -17,10 +17,21 @@ Memory placement is controlled by linker.lin.
 
 Partial Lock options are defined in ht32_op2.s/.c.
 
-IDE Notes for EWARM and EWARMv8:
+This example uses the Execute Only feature:
+  For MDK_ARMv537:
+    The Execute Only feature is supported for the Armv6-M (Cortex-M0+) architecture only in
+    MDK-ARM v5.39 (Arm Compiler 6.21) and later versions.
+  For GNU_ARM:
+    The Execute Only feature is supported for the Armv6-M (Cortex-M0+) architecture only in
+    GCC 8.1 and later versions.
 
 IDE Notes
 To generate the function symbol list:
+  For MDK_ARMv537:
+  1. In Options for Target > Linker > Misc Controls, add: "--symdefs=calculate_symbol_MDKv537.o"
+  2. After compilation, "calculate_symbol_MDKv537.o" will be generated under ./HT32/72388/Obj/.
+  3. Manually remove unused functions from the list as needed.
+
   For MDK_ARMv5:
   1. In Options for Target > Linker > Misc Controls, add: "--symdefs=calculate_symbol_MDKv5.o"
   2. After compilation, "calculate_symbol_MDKv5.o" will be generated under ./HT32/72388/Obj/.

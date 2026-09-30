@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_rstcu.h
- * @version $Rev:: 212          $
- * @date    $Date:: 2025-05-06 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   The header file of the Reset Control Unit library.
  *************************************************************************************************************
  * @attention
@@ -134,7 +134,7 @@ typedef union
     unsigned long SLED1      :1;    // Bit 23
 
     unsigned long SCI0       :1;    // Bit 24
-    unsigned long I2S        :1;    // Bit 25
+    unsigned long I2S0       :1;    // Bit 25
     unsigned long            :1;    // Bit 26
     unsigned long SCI1       :1;    // Bit 27
     unsigned long MIDI       :1;    // Bit 28

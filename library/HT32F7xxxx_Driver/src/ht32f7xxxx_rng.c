@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_rng.c
- * @version $Rev:: 458          $
- * @date    $Date:: 2026-05-07 #$
+ * @version $Rev:: 506          $
+ * @date    $Date:: 2026-09-16 #$
  * @brief   This file provides all the Random Number Generator firmware functions.
  *************************************************************************************************************
  * @attention
@@ -81,6 +81,7 @@ void RNG_Init(HT_RNG_TypeDef* HT_RNGn, RNG_InitTypeDef RNG_InitStruct)
 
 /*********************************************************************************************************//**
  * @brief Deinitializes the RNG peripheral registers to their default reset values.
+ * @param HT_RNGn: where RNG is the selected RNG from the RNG peripherals.
  * @retval None
  ************************************************************************************************************/
 void RNG_DeInit(HT_RNG_TypeDef* HT_RNGn)
@@ -98,7 +99,7 @@ void RNG_DeInit(HT_RNG_TypeDef* HT_RNGn)
 
 /*********************************************************************************************************//**
  * @brief Enable or Disable the RNG timer.
- * @param HT_RNGn: Selected RNG peripheral.
+ * @param HT_RNGn: where RNG is the selected RNG from the RNG peripherals.
  * @param NewState: This parameter can be ENABLE or DISABLE.
  * @retval None
  ************************************************************************************************************/
@@ -162,7 +163,7 @@ void RNG_GetRandomNumber(HT_RNG_TypeDef* HT_RNGn, RNG_randomNumber* randomNumber
  * @brief Enable or Disable RNG interrupts.
  * @param HT_RNGn: where HT_RNGn is the selected RNG from the RNG peripherals.
  * @param RNG_Int: specify if the RNG interrupt source to be enabled or disabled.
- *   This parameter can be any combination of the following values:
+ *     This parameter can be one of the following values:
  *     @arg RNG_INT_VALID
  * @param NewState: This parameter can be ENABLE or DISABLE.
  * @retval None
@@ -188,8 +189,8 @@ void RNG_IntConfig(HT_RNG_TypeDef* HT_RNGn, u32 RNG_Int, ControlStatus NewState)
  * @brief Check whether the RNG Flag has occurred.
  * @param HT_RNGn: where RNG is the selected RNG from the RNG peripherals.
  * @param RNG_Flag: Specify the RNG interrupt source to be checked.
- *        This parameter can be one of the following values:
- *        @arg RNG_FLAG_VALID
+ *     This parameter can be one of the following values:
+ *     @arg RNG_FLAG_VALID
  * @retval The new state of the RNG_Int(SET or RESET)
  ************************************************************************************************************/
 FlagStatus RNG_GetFlagStatus(HT_RNG_TypeDef* HT_RNGn, u32 RNG_Flag)
@@ -210,9 +211,9 @@ FlagStatus RNG_GetFlagStatus(HT_RNG_TypeDef* HT_RNGn, u32 RNG_Flag)
 
 /*********************************************************************************************************//**
  * @brief Clear the RNG interrupt flag.
- * @param HT_RNGn: Selected RNG peripheral.
+ * @param HT_RNGn: where RNG is the selected RNG from the RNG peripherals.
  * @param RNG_Flag: specify the RNG interrupt flag to clear.
- *   This parameter can be any combination of the following values:
+ *     This parameter can be one of the following values:
  *     @arg RNG_FLAG_VALID
  * @retval None
  ************************************************************************************************************/

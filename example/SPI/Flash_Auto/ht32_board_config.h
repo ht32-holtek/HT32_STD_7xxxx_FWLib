@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
- * @file    USBD/USB_UAC_Sound/ht32_board_config.h
- * @version $Rev:: 521          $
- * @date    $Date:: 2026-09-23#$
+ * @file    SPI/Flash_Auto/ht32_board_config.h
+ * @version $Rev:: 519          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   The header file of board configuration.
  *************************************************************************************************************
  * @attention
@@ -32,37 +32,17 @@
  extern "C" {
 #endif
 
+
 /* Settings ------------------------------------------------------------------------------------------------*/
-#if (LIBCFG_I2S0 || LIBCFG_I2S1) & (LIBCFG_USBD)
-#else
-  #error "This example code does not apply to the chip you selected."
-#endif
+/* !!! NOTICE !!!
+   For the development board which uses "USE_HT32XXXXXX_DVB":
+   1. The example requires external components on the expansion board but the development board can not use
+      with it directly.
+   2. The extra jumper/wired connections may be required to use this example.
+   3. Using extra jumper/wired may affect the maximum speed and quality of the signal. For communication interface
+      such as SPI/EBI/..., it may be necessary to appropriately reduce the speed by AHB/APB clock prescaler settings.
+*/
 
-#if defined(USE_HT32F72388_SK)
-  #define HTCFG_I2CM_ID                                    (HT_I2C1)
-  #define HTCFG_I2CM_CKCU(ck)                              (ck.Bit.I2C1)
-  #define HTCFG_I2CM_IRQ                                   (I2C1_IRQn)
-  #define HTCFG_I2CM_MASTER_SCK_ID                         (GPIO_PC)
-  #define HTCFG_I2CM_MASTER_SCK_AFIO_PIN                   (AFIO_PIN_0)
-  #define HTCFG_I2CM_MASTER_SDA_ID                         (GPIO_PB)
-  #define HTCFG_I2CM_MASTER_SDA_AFIO_PIN                   (AFIO_PIN_15)
-
-  #define HTCFG_I2S_BCLK_ID                                (GPIO_PD)
-  #define HTCFG_I2S_BCLK_ADIO_PIN                          (AFIO_PIN_8)
-  #define HTCFG_I2S_SDO_ID                                 (GPIO_PD)
-  #define HTCFG_I2S_SDO_ADIO_PIN                           (AFIO_PIN_9)
-  #define HTCFG_I2S_SDI_ID                                 (GPIO_PD)
-  #define HTCFG_I2S_SDI_ADIO_PIN                           (AFIO_PIN_10)
-  #define HTCFG_I2S_MCLK_ID                                (GPIO_PA)
-  #define HTCFG_I2S_MCLK_ADIO_PIN                          (AFIO_PIN_8)
-  #define HTCFG_I2S_WS_ID                                  (GPIO_PA)
-  #define HTCFG_I2S_WS_ADIO_PIN                            (AFIO_PIN_9)
-
-  #define HTCFG_I2S_X_DIV                                  (86)
-  #define HTCFG_I2S_Y_DIV                                  (252)
-
-  #define HTCFG_FUN_I2C_IRQ                                (I2C1_IRQHandler)
-#endif
 
 #ifdef __cplusplus
 }

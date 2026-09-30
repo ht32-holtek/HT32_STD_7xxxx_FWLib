@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    USBD/USB_UAC_Sound_RateControl/ht32_board_config.h
- * @version $Rev:: 338          $
- * @date    $Date:: 2025-09-17 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   The header file of board configuration.
  *************************************************************************************************************
  * @attention
@@ -33,7 +33,7 @@
 #endif
 
 /* Settings ------------------------------------------------------------------------------------------------*/
-#if (LIBCFG_I2S) & (LIBCFG_USBD)
+#if (LIBCFG_I2S0 || LIBCFG_I2S1) & (LIBCFG_USBD)
 #else
   #error "This example code does not apply to the chip you selected."
 #endif

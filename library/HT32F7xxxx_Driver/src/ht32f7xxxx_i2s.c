@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_i2s.c
- * @version $Rev:: 15           $
- * @date    $Date:: 2025-01-13 #$
+ * @version $Rev:: 521          $
+ * @date    $Date:: 2026-09-23 #$
  * @brief   This file provides all the I2S firmware functions.
  *************************************************************************************************************
  * @attention
@@ -61,98 +61,118 @@
   */
 /*********************************************************************************************************//**
  * @brief Deinitialize the I2S peripheral registers to their default reset values.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
  * @retval None
  ************************************************************************************************************/
-void I2S_DeInit(void)
+void I2S_DeInit(HT_I2S_TypeDef* I2Sx)
 {
   RSTCU_PeripReset_TypeDef RSTCUReset = {{0}};
 
-  RSTCUReset.Bit.I2S = 1;
+  /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
+
+  if (I2Sx == HT_I2S0)
+  {
+    RSTCUReset.Bit.I2S0 = 1;
+  }
+  #if (LIBCFG_I2S1)
+  else if (I2Sx == HT_I2S1)
+  {
+    RSTCUReset.Bit.I2S1 = 1;
+  }
+  #endif
   RSTCU_PeripReset(RSTCUReset, ENABLE);
 }
 
 /*********************************************************************************************************//**
  * @brief Initialize the I2S peripheral according to the specified parameters in the I2S_InitStruct.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
  * @param I2S_InitStruct: pointer to a I2S_InitTypeDef structure.
  * @retval None
  ************************************************************************************************************/
-void I2S_Init(I2S_InitTypeDef* I2S_InitStruct)
+void I2S_Init(HT_I2S_TypeDef* I2Sx, I2S_InitTypeDef* I2S_InitStruct)
 {
   /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
   Assert_Param(IS_I2S_MODE(I2S_InitStruct->I2S_Mode));
   Assert_Param(IS_I2S_FORMAT(I2S_InitStruct->I2S_Format));
   Assert_Param(IS_I2S_WORD_WIDTH(I2S_InitStruct->I2S_WordWidth));
   Assert_Param(IS_I2S_MCLK_DIV(I2S_InitStruct->I2S_X_Div, I2S_InitStruct->I2S_Y_Div));
   Assert_Param(IS_I2S_BCLK_DIV(I2S_InitStruct->I2S_N_Div));
 
-  HT_I2S->CR = I2S_InitStruct->I2S_Mode | I2S_InitStruct->I2S_Format | I2S_InitStruct->I2S_WordWidth;
+  I2Sx->CR = I2S_InitStruct->I2S_Mode | I2S_InitStruct->I2S_Format | I2S_InitStruct->I2S_WordWidth;
 
   if (I2S_InitStruct->I2S_BclkInv == ENABLE)
   {
-    HT_I2S->CR |= BCLK_INV_EN;
+    I2Sx->CR |= BCLK_INV_EN;
   }
 
   if (I2S_InitStruct->I2S_MclkInv == ENABLE)
   {
-    HT_I2S->CR |= MCLK_INV_EN;
+    I2Sx->CR |= MCLK_INV_EN;
   }
 
   if ((I2S_InitStruct->I2S_Mode & I2S_SLAVE) == RESET)
   {
-    HT_I2S->CDR = (I2S_InitStruct->I2S_N_Div << 16) | (I2S_InitStruct->I2S_X_Div << 8) |
+    I2Sx->CDR = (I2S_InitStruct->I2S_N_Div << 16) | (I2S_InitStruct->I2S_X_Div << 8) |
                   (I2S_InitStruct->I2S_Y_Div);
-    HT_I2S->CR |= CLK_DIV_EN;
-    while (I2S_GetFlagStatus(I2S_FLAG_CLK_RDY) == RESET);
+    I2Sx->CR |= CLK_DIV_EN;
+    while (I2S_GetFlagStatus(I2Sx, I2S_FLAG_CLK_RDY) == RESET);
 
     if (I2S_InitStruct->I2S_MclkOut == ENABLE)
     {
-      HT_I2S->CR |= MCLK_OP_EN;
+      I2Sx->CR |= MCLK_OP_EN;
     }
   }
 }
 
 /*********************************************************************************************************//**
  * @brief Enable or Disable the I2S peripheral.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
  * @param NewState: This parameter can be ENABLE or DISABLE.
  * @retval None
  ************************************************************************************************************/
-void I2S_Cmd(ControlStatus NewState)
+void I2S_Cmd(HT_I2S_TypeDef* I2Sx, ControlStatus NewState)
 {
   /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
   Assert_Param(IS_CONTROL_STATUS(NewState));
 
   if (NewState != DISABLE)
   {
-    HT_I2S->CR |= I2S_EN;
+    I2Sx->CR |= I2S_EN;
   }
   else
   {
-    HT_I2S->CR &= ~I2S_EN;
+    I2Sx->CR &= ~I2S_EN;
   }
 }
 
 /*********************************************************************************************************//**
  * @brief Enable or Disable the Tx mute for the I2S peripheral.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
  * @param NewState: This parameter can be ENABLE or DISABLE.
  * @retval None
  ************************************************************************************************************/
-void I2S_TxMuteCmd(ControlStatus NewState)
+void I2S_TxMuteCmd(HT_I2S_TypeDef* I2Sx, ControlStatus NewState)
 {
   /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
   Assert_Param(IS_CONTROL_STATUS(NewState));
 
   if (NewState != DISABLE)
   {
-    HT_I2S->CR |= TX_MUTE_EN;
+    I2Sx->CR |= TX_MUTE_EN;
   }
   else
   {
-    HT_I2S->CR &= ~TX_MUTE_EN;
+    I2Sx->CR &= ~TX_MUTE_EN;
   }
 }
 
 /*********************************************************************************************************//**
  * @brief Enable or Disable the I2S PDMA interface.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
  * @param I2S_PDMAREQ: specify the I2S PDMA transfer request to be enabled or disabled.
  *   This parameter can be any combination of the following values:
  *     @arg I2S_PDMAREQ_TX : Tx PDMA transfer request
@@ -160,40 +180,44 @@ void I2S_TxMuteCmd(ControlStatus NewState)
  * @param  NewState: This parameter can be ENABLE or DISABLE.
  * @retval None
  ************************************************************************************************************/
-void I2S_PDMACmd(u32 I2S_PDMAREQ, ControlStatus NewState)
+void I2S_PDMACmd(HT_I2S_TypeDef* I2Sx, u32 I2S_PDMAREQ, ControlStatus NewState)
 {
   /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
   Assert_Param(IS_I2S_PDMA_REQ(I2S_PDMAREQ));
   Assert_Param(IS_CONTROL_STATUS(NewState));
 
   if (NewState != DISABLE)
   {
-    HT_I2S->CR |= I2S_PDMAREQ;
+    I2Sx->CR |= I2S_PDMAREQ;
   }
   else
   {
-    HT_I2S->CR &= I2S_PDMAREQ;
+    I2Sx->CR &= ~I2S_PDMAREQ;
   }
 }
 
 /*********************************************************************************************************//**
  * @brief Reset the specified I2S FIFO.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
  * @param I2S_FIFO: specify the FIFO that is to be reset.
  *   This parameter can be any combination of the following values:
  *     @arg I2S_TX_FIFO : I2S Tx FIFO
  *     @arg I2S_RX_FIFO : I2S Rx FIFO
  * @retval None
  ************************************************************************************************************/
-void I2S_FIFOReset(u32 I2S_FIFO)
+void I2S_FIFOReset(HT_I2S_TypeDef* I2Sx, u32 I2S_FIFO)
 {
   /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
   Assert_Param(IS_I2S_TWO_FIFO(I2S_FIFO));
 
-  HT_I2S->FCR |= I2S_FIFO;
+  I2Sx->FCR |= I2S_FIFO;
 }
 
 /*********************************************************************************************************//**
  * @brief Set the trigger level of specified I2S FIFO.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
  * @param I2S_FIFO: specify the FIFO that is to be set.
  *   This parameter can be any combination of the following values:
  *     @arg I2S_TX_FIFO : I2S Tx FIFO
@@ -201,47 +225,51 @@ void I2S_FIFOReset(u32 I2S_FIFO)
  * @param  I2S_FIFOLevel: Specify the FIFO trigger level.
  * @retval None
  ************************************************************************************************************/
-void I2S_FIFOTrigLevelConfig(u32 I2S_FIFO, u32 I2S_FIFOLevel)
+void I2S_FIFOTrigLevelConfig(HT_I2S_TypeDef* I2Sx, u32 I2S_FIFO, u32 I2S_FIFOLevel)
 {
   /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
   Assert_Param(IS_I2S_TWO_FIFO(I2S_FIFO));
   Assert_Param(IS_I2S_FIFO_LEVEL(I2S_FIFOLevel));
 
   if (I2S_FIFO == I2S_TX_FIFO)
   {
-    HT_I2S->FCR = ((HT_I2S->FCR & (~0x0000000F)) | I2S_FIFOLevel);
+    I2Sx->FCR = ((I2Sx->FCR & (~0x0000000F)) | I2S_FIFOLevel);
   }
   else
   {
-    HT_I2S->FCR = ((HT_I2S->FCR & (~0x000000F0)) | (I2S_FIFOLevel << 4));
+    I2Sx->FCR = ((I2Sx->FCR & (~0x000000F0)) | (I2S_FIFOLevel << 4));
   }
 }
 
 /*********************************************************************************************************//**
  * @brief Return the status of specified I2S FIFO.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
  * @param I2S_FIFO: specify the FIFO that is to be checked.
  *   This parameter can be one of the following values:
  *     @arg I2S_TX_FIFO : I2S Tx FIFO
  *     @arg I2S_RX_FIFO : I2S Rx FIFO
  * @retval The number of data in specified I2S FIFO.
  ************************************************************************************************************/
-u8 I2S_GetFIFOStatus(u32 I2S_FIFO)
+u8 I2S_GetFIFOStatus(HT_I2S_TypeDef* I2Sx, u32 I2S_FIFO)
 {
   /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
   Assert_Param(IS_I2S_ONE_FIFO(I2S_FIFO));
 
   if (I2S_FIFO == I2S_TX_FIFO)
   {
-    return (u8)((HT_I2S->SR >> 24) & 0x0F);
+    return (u8)((I2Sx->SR >> 24) & 0x0F);
   }
   else
   {
-    return (u8)(HT_I2S->SR >> 28);
+    return (u8)(I2Sx->SR >> 28);
   }
 }
 
 /*********************************************************************************************************//**
  * @brief Enable or Disable the I2S interrupt.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
  * @param I2S_Int: specify if the I2S interrupt source to be enabled or disabled.
  *   This parameter can be any combination of the following values:
  *     @arg I2S_INT_TXFIFO_TRI : I2S Tx FIFO trigger level interrupt
@@ -253,24 +281,26 @@ u8 I2S_GetFIFOStatus(u32 I2S_FIFO)
  * @param  NewState: This parameter can be ENABLE or DISABLE.
  * @retval None
  ************************************************************************************************************/
-void I2S_IntConfig(u32 I2S_Int, ControlStatus NewState)
+void I2S_IntConfig(HT_I2S_TypeDef* I2Sx, u32 I2S_Int, ControlStatus NewState)
 {
   /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
   Assert_Param(IS_I2S_INT(I2S_Int));
   Assert_Param(IS_CONTROL_STATUS(NewState));
 
   if (NewState != DISABLE)
   {
-    HT_I2S->IER |= I2S_Int;
+    I2Sx->IER |= I2S_Int;
   }
   else
   {
-    HT_I2S->IER &= ~I2S_Int;
+    I2Sx->IER &= ~I2S_Int;
   }
 }
 
 /*********************************************************************************************************//**
  * @brief  Check whether the specified I2S flag has been set or not.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
  * @param  I2S_Flag: specify the flag that is to be check.
  *   This parameter can be one of the following values:
  *     @arg I2S_FLAG_TXFIFO_TRI : I2S Tx FIFO trigger level flag
@@ -288,12 +318,13 @@ void I2S_IntConfig(u32 I2S_Int, ControlStatus NewState)
  *     @arg I2S_FLAG_CLK_RDY    : I2S clock ready flag
  * @retval SET or RESET
  ************************************************************************************************************/
-FlagStatus I2S_GetFlagStatus(u32 I2S_Flag)
+FlagStatus I2S_GetFlagStatus(HT_I2S_TypeDef* I2Sx, u32 I2S_Flag)
 {
   /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
   Assert_Param(IS_I2S_FLAG(I2S_Flag));
 
-  if (HT_I2S->SR & I2S_Flag)
+  if (I2Sx->SR & I2S_Flag)
   {
     return SET;
   }
@@ -305,6 +336,7 @@ FlagStatus I2S_GetFlagStatus(u32 I2S_Flag)
 
 /*********************************************************************************************************//**
  * @brief  Clear the specified I2S flag.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
  * @param  I2S_Flag: specify the flag that is to be cleared.
  *   This parameter can be any combination of the following values:
  *     @arg I2S_FLAG_TXFIFO_TRI : I2S Tx FIFO trigger level flag
@@ -315,12 +347,13 @@ FlagStatus I2S_GetFlagStatus(u32 I2S_Flag)
  *     @arg I2S_FLAG_RXFIFO_OV  : I2S Rx FIFO overflow flag
  * @retval None
  ************************************************************************************************************/
-void I2S_ClearFlag(u32 I2S_Flag)
+void I2S_ClearFlag(HT_I2S_TypeDef* I2Sx, u32 I2S_Flag)
 {
   /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
   Assert_Param(IS_I2S_FLAG_CLEAR(I2S_Flag));
 
-  HT_I2S->SR = I2S_Flag;
+  I2Sx->SR = I2S_Flag;
 }
 /**
   * @}
