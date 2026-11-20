@@ -71,6 +71,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/GNU_ARM/ht32_op.c</locationURI>
 		</link>
 		<link>
+			<name>Config/ht32_op2.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/GNU_ARM/ht32_op2.c</locationURI>
+		</link>
+		<link>
 			<name>CMSIS/system_ht32f7xxxx_01.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/system_ht32f7xxxx_01.c</locationURI>
@@ -276,9 +281,9 @@
 			<locationURI>PARENT-2-PROJECT_LOC/readme.txt</locationURI>
 		</link>
 		<link>
-			<name>Linker/linker.ld</name>
+			<name>Linker/linker_72388.ld</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/GNU_ARM/linker.ld</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/Project_72388/linker_72388.ld</locationURI>
 		</link>	
 	</linkedResources>
 </projectDescription>

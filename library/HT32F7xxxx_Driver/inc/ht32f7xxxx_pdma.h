@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_pdma.h
- * @version $Rev:: 521          $
- * @date    $Date:: 2026-09-23 #$
+ * @version $Rev:: 547          $
+ * @date    $Date:: 2026-10-08 #$
  * @brief   The header file of the PDMA library.
  *************************************************************************************************************
  * @attention
@@ -98,15 +98,19 @@ typedef struct
 #define IS_PDMA_ADR_MOD(MOD)      ((MOD & 0xFFFFF30F) == 0)     /*!< check address mode parameters          */
 
 /* transfer size                                                                                            */
-#define IS_PDMA_BLK_CNT(CNT)      ((CNT > 0) && (CNT <= 65535))  /*!< block count per transfer               */
-#define IS_PDMA_BLK_LEN(LEN)      ((LEN > 0) && (LEN <= 255))    /*!< block size per block count             */
+#define IS_PDMA_BLK_CNT(CNT)      ((CNT > 0) && (CNT <= 65535))  /*!< block count per transfer              */
+#define IS_PDMA_BLK_LEN(LEN)      ((LEN > 0) && (LEN <= 255))    /*!< block size per block count            */
 
 /* transfer width                                                                                           */
 #define WIDTH_8BIT                (0)                           /*!< 8-bit transfer width                   */
 #define WIDTH_16BIT               (1UL << 2)                    /*!< 16-bit transfer width                  */
 #define WIDTH_32BIT               (2UL << 2)                    /*!< 32-bit transfer width                  */
 
-#define IS_PDMA_WIDTH(WIDTH)      ((WIDTH >> 2) < 3)            /*!< check transfer width parameter         */
+/* check transfer width parameter                                                                           */
+#define IS_PDMA_WIDTH(WIDTH)      ((WIDTH == WIDTH_8BIT)  || \
+                                   (WIDTH == WIDTH_16BIT) || \
+                                   (WIDTH == WIDTH_32BIT))
+
 
 /* channel number                                                                                           */
 #define PDMA_CH0                  (0)                           /*!< channel 0 number                       */

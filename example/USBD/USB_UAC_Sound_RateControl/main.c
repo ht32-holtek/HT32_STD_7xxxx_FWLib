@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    USBD/USB_UAC_Sound_RateControl/main.c
- * @version $Rev:: 521          $
- * @date    $Date:: 2026-09-23 #$
+ * @version $Rev:: 608          $
+ * @date    $Date:: 2026-11-06 #$
  * @brief   The main program of USB Device Audio example.
  *************************************************************************************************************
  * @attention
@@ -53,8 +53,6 @@
 
 
 /* Private constants ---------------------------------------------------------------------------------------*/
-#define I2S_RCEN  0x00010000ul
-#define I2S_RCSEL 0x00020000ul
 
 /* Private function prototypes -----------------------------------------------------------------------------*/
 void SYSTICK_Configuration(void);
@@ -183,18 +181,18 @@ void I2S_MainRoutine(void)
 
       if (I2S_CurrentRateContronIndex > 0)
       {
-        HT_I2S0->CR |= I2S_RCSEL;
-        HT_I2S0->RCNTR = I2S_RateControlCounterTable[I2S_CurrentRateContronIndex - 1];
+        I2S_RateConfig(HT_I2S0, I2S_RATE_FASTER);
+        I2S_SetRateValue(HT_I2S0, I2S_RateControlCounterTable[I2S_CurrentRateContronIndex - 1]);
       }
       else if (I2S_CurrentRateContronIndex < 0)
       {
         int tmp = 0 - I2S_CurrentRateContronIndex;
-        HT_I2S0->CR &= ~I2S_RCSEL;
-        HT_I2S0->RCNTR = I2S_RateControlCounterTable[tmp - 1];
+        I2S_RateConfig(HT_I2S0, I2S_RATE_SLOWER);
+        I2S_SetRateValue(HT_I2S0, I2S_RateControlCounterTable[tmp - 1]);
       }
       else
       {
-        HT_I2S0->RCNTR = 0;
+        I2S_SetRateValue(HT_I2S0, 0);
       }
     }
 
@@ -585,7 +583,7 @@ void I2S_Configuration(void)
   I2S_Cmd(HT_I2S0, ENABLE);
 
   /* Enable I2S Rate Control                                                                                */
-  HT_I2S0->CR |= I2S_RCEN;
+  I2S_RateCmd(HT_I2S0, ENABLE);
 }
 
 /*********************************************************************************************************//**

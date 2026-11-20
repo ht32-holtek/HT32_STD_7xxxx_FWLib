@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_ckcu.h
- * @version $Rev:: 521          $
- * @date    $Date:: 2026-09-23 #$
+ * @version $Rev:: 600          $
+ * @date    $Date:: 2026-11-04 #$
  * @brief   The header file of the Clock Control Unit library.
  *************************************************************************************************************
  * @attention
@@ -844,6 +844,9 @@ void CKCU_SetHSIReadyCounter(u8 value);
 #endif
 
 void CKCU_SetHSEGainMode(u32 GanMode);
+
+u16 CKCU_GetHSIAutoTrimValue(void);
+void CKCU_HSIAutoTrimValueConfig(u16 TrimValue);
 
 /**
   * @}

@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_gpio.c
- * @version $Rev:: 518          $
- * @date    $Date:: 2026-09-23 #$
+ * @version $Rev:: 607          $
+ * @date    $Date:: 2026-11-05 #$
  * @brief   This file provides all the GPIO and AFIO firmware functions.
  *************************************************************************************************************
  * @attention
@@ -572,6 +572,50 @@ u32 GPIO_GetID(HT_GPIO_TypeDef* HT_GPIOx)
   GPIO_Px -= 0x58;  // 0xB0000 >> 13 = 0x58
 
   return GPIO_Px;
+}
+
+/*********************************************************************************************************//**
+ * @brief Config the per-driver function of specified GPIO pins.
+ * @param HT_GPIOx: where HT_GPIOx is the selected GPIO from the GPIO peripherals.
+ * @param GPIO_PIN_nBITMAP: The port pins.
+ *   This parameter can be any combination of GPIO_PIN_x.
+ * @param GPIO_PREDRIVER_x: This parameter can be GPIO_PREDRIVER_NORMAL or GPIO_PREDRIVER_HIGH.
+ * @retval None
+ ************************************************************************************************************/
+void GPIO_PreDriverConfig(HT_GPIO_TypeDef* HT_GPIOx, u16 GPIO_PIN_nBITMAP, GPIO_PREDRIVER_Enum GPIO_PREDRIVER_x)
+{
+  /* Check the parameters                                                                                   */
+  Assert_Param(IS_GPIO(HT_GPIOx));
+  Assert_Param(IS_GPIO_PREDRIVER(GPIO_PREDRIVER_x));
+
+  GPIO_CK_ON();
+  if (GPIO_PREDRIVER_x != GPIO_PREDRIVER_NORMAL)
+    HT_GPIOx->HSSR |= GPIO_PIN_nBITMAP;    // Select per-driver high mode
+  else
+    HT_GPIOx->HSSR &= ~GPIO_PIN_nBITMAP;   // Select per-driver normal mode
+  GPIO_CK_OFF();
+}
+
+/*********************************************************************************************************//**
+ * @brief Config the schmitt function of specified GPIO pins.
+ * @param HT_GPIOx: where HT_GPIOx is the selected GPIO from the GPIO peripherals.
+ * @param GPIO_PIN_nBITMAP: The port pins.
+ *   This parameter can be any combination of GPIO_PIN_x.
+ * @param GPIO_SCHMITT_x: This parameter can be GPIO_SCHMITT_NORMAL or GPIO_SCHMITT_LOW.
+ * @retval None
+ ************************************************************************************************************/
+void GPIO_SchmittConfig(HT_GPIO_TypeDef* HT_GPIOx, u16 GPIO_PIN_nBITMAP, GPIO_SCHMITT_Enum GPIO_SCHMITT_x)
+{
+  /* Check the parameters                                                                                   */
+  Assert_Param(IS_GPIO(HT_GPIOx));
+  Assert_Param(IS_GPIO_SCHMITT(GPIO_SCHMITT_x));
+
+  GPIO_CK_ON();
+  if (GPIO_SCHMITT_x != GPIO_SCHMITT_NORMAL)
+    HT_GPIOx->SMTSR |= GPIO_PIN_nBITMAP;   // Select schmitt low mode
+  else
+    HT_GPIOx->SMTSR &= ~GPIO_PIN_nBITMAP;  // Select schmitt normal mode
+  GPIO_CK_OFF();
 }
 
 /*********************************************************************************************************//**

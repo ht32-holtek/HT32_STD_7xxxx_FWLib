@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    AES/CTR/main.c
- * @version $Rev:: 119          $
- * @date    $Date:: 2025-02-14 #$
+ * @version $Rev:: 618          $
+ * @date    $Date:: 2026-11-11 #$
  * @brief   Main program.
  *************************************************************************************************************
  * @attention
@@ -85,6 +85,7 @@ int main(void)
   BFTM_EnaCmd(HT_BFTM0, ENABLE);
 
   AES_CTR_Init(HT_AES, &AES_InitStruct);  /* AES CTR Init                                                   */
+  AES_EndianConfig(HT_AES, AES_LITTLE_ENDIAN);      /* Configure the AES data little endian                 */
 
   /* Set key table, AES supports key size of 128, 192 and 256 bits.                                         */
   AES_SetKeyTable(HT_AES, (u32*)gu8KeyTable, KEY_SIZE);

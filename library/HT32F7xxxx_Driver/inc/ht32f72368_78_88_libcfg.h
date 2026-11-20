@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f72368_78_88_libcfg.h
- * @version $Rev:: 521          $
- * @date    $Date:: 2026-09-23 #$
+ * @version $Rev:: 559          $
+ * @date    $Date:: 2026-10-19 #$
  * @brief   The library configuration file.
  *************************************************************************************************************
 * @attention
@@ -71,6 +71,7 @@
 #define LIBCFG_CKCU_PLLSRCDIV             (1)
 #define LIBCFG_CMP                        (1)
 #define LIBCFG_CMP_IVREF_CN_IN            (1)
+#define LIBCFG_CMP_SCALER_8BIT            (1)
 #define LIBCFG_CRC                        (1)
 #define LIBCFG_DAC0                       (1)
 #define LIBCFG_DIV                        (1)

@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_ckcu.c
- * @version $Rev:: 521          $
- * @date    $Date:: 2026-09-23 #$
+ * @version $Rev:: 600          $
+ * @date    $Date:: 2026-11-04 #$
  * @brief   This file provides all the Clock Control Unit firmware functions.
  *************************************************************************************************************
  * @attention
@@ -1136,6 +1136,25 @@ void CKCU_SetHSEGainMode(u32 GanMode)
   Assert_Param(IS_GAINMODE(GanMode));
 
   HT_CKCU->GCCR = (HT_CKCU->GCCR & ~(0x100)) | GanMode;
+}
+
+/*********************************************************************************************************//**
+ * @brief Get the current HSI clock fine trimming value.
+ * @retval The current 8-bit HSIFINE value.
+ ************************************************************************************************************/
+u16 CKCU_GetHSIAutoTrimValue(void)
+{
+  return (HT_CKCU->HSICR & 0x00FF0000) >> 16;
+}
+
+/*********************************************************************************************************//**
+ * @brief  Configure the HSI clock fine trimming value and select manual trimming mode.
+ * @param  TrimValue: The HSI fine trimming value.
+ * @retval None
+ ************************************************************************************************************/
+void CKCU_HSIAutoTrimValueConfig(u16 TrimValue)
+{
+  HT_CKCU->HSICR = ((TrimValue << 16) | (1ul << 4));
 }
 
 /**

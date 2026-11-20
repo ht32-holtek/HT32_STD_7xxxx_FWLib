@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_div.c
- * @version $Rev:: 15           $
- * @date    $Date:: 2025-01-13 #$
+ * @version $Rev:: 561          $
+ * @date    $Date:: 2026-10-19 #$
  * @brief   This file provides all the DIV firmware functions.
  *************************************************************************************************************
  * @attention
@@ -79,7 +79,9 @@ s32 DIV_Div32(s32 dividend, s32 divisor)
   {
     if (DIV_IsDivByZero() == TRUE)
     {
-      while (1);
+      while (1)
+      {
+      }
     }
   }
   #endif
@@ -105,6 +107,16 @@ u32 DIV_uDiv32(u32 dividend, u32 divisor)
 
   if (dividend == divisor)
   {
+    #if (DIV_ENABLE_DIVIDE_BY_ZERO_CHECK == 1)
+    {
+      if (divisor == 0)
+      {
+        while (1)
+        {
+        }
+      }
+    }
+    #endif
     return 1;
   }
 
@@ -125,7 +137,9 @@ u32 DIV_uDiv32(u32 dividend, u32 divisor)
     {
       if (DIV_IsDivByZero() == TRUE)
       {
-        while (1);
+        while (1)
+        {
+        }
       }
     }
     #endif
@@ -144,7 +158,9 @@ u32 DIV_uDiv32(u32 dividend, u32 divisor)
   {
     if (DIV_IsDivByZero() == TRUE)
     {
-      while (1);
+      while (1)
+      {
+      }
     }
   }
   #endif

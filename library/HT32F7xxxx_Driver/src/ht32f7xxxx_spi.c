@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_spi.c
- * @version $Rev:: 235          $
- * @date    $Date:: 2025-05-15 #$
+ * @version $Rev:: 558          $
+ * @date    $Date:: 2026-10-16 #$
  * @brief   This file provides all the SPI firmware functions.
  *************************************************************************************************************
  * @attention
@@ -677,7 +677,7 @@ void SPI_GUARDTConfig(HT_SPI_TypeDef* SPIx, u32 Guard_Time)
   Assert_Param(IS_SPI(SPIx));
   Assert_Param(IS_SPI_GUADTIME(Guard_Time));
 
-  SPIx->CR0 = (SPIx->CR0 & 0xF0FF) | (Guard_Time << 8);
+  SPIx->CR0 = (SPIx->CR0 & 0xFFFFF0FF) | (Guard_Time << 8);
 }
 
 /*********************************************************************************************************//**
@@ -693,7 +693,7 @@ void SPI_SELHTConfig(HT_SPI_TypeDef* SPIx, u32 CS_Hold_Time)
   Assert_Param(IS_SPI(SPIx));
   Assert_Param(IS_SPI_SELHOLDTIME(CS_Hold_Time));
 
-  SPIx->CR0 = (SPIx->CR0 & 0x0FFF) | (CS_Hold_Time << 12);
+  SPIx->CR0 = (SPIx->CR0 & 0xFFFF0FFF) | (CS_Hold_Time << 12);
 }
 
 /*********************************************************************************************************//**

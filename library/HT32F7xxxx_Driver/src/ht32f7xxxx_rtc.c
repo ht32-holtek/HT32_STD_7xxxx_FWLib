@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_rtc.c
- * @version $Rev:: 79           $
- * @date    $Date:: 2025-02-10 #$
+ * @version $Rev:: 547          $
+ * @date    $Date:: 2026-10-08 #$
  * @brief   This file provides all the RTC firmware functions.
  *************************************************************************************************************
  * @attention
@@ -119,7 +119,7 @@ void RTC_LSECmd(ControlStatus NewState)
 #endif
 
 /*********************************************************************************************************//**
- * @brief Enable or Disable the compare match function.
+ * @brief Enable or disable RTC counter clear on compare match.
  * @param NewState: This parameter can be ENABLE or DISABLE.
  * @retval None
  ************************************************************************************************************/
@@ -174,7 +174,7 @@ u16 RTC_GetPrescaler(void)
 {
   u32 prescaler;
 
-  prescaler = HT_RTC->CR >> 8;
+  prescaler = (HT_RTC->CR & 0x00000F00) >> 8;
 
   return ((u16)0x1 << prescaler);
 }
@@ -186,6 +186,8 @@ u16 RTC_GetPrescaler(void)
  ************************************************************************************************************/
 void RTC_Cmd(ControlStatus NewState)
 {
+  Assert_Param(IS_CONTROL_STATUS(NewState));
+
   if (NewState != DISABLE)
   {
     HT_RTC->CR |= (1UL);

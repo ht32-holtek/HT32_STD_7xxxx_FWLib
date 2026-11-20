@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_tm.h
- * @version $Rev:: 106          $
- * @date    $Date:: 2025-02-12 #$
+ * @version $Rev:: 558          $
+ * @date    $Date:: 2026-10-16 #$
  * @brief   The header file of the TM library.
  *************************************************************************************************************
  * @attention
@@ -485,7 +485,7 @@ typedef struct
 /**
  * @brief Used to check parameter of the TM PDMA request.
  */
-#define IS_TM_PDMA(x) (((x & 0xFAF0FFFF) == 0x0) && (x != 0))
+#define IS_TM_PDMA(x) (((x & 0xF8F0FFFF) == 0x0) && (x != 0))
 /**
  * @brief Used to check parameter of the TM interrupt for \ref TM_GetIntStatus function.
  */
@@ -554,7 +554,7 @@ typedef struct
 /**
  * @brief Used to check parameter of the event.
  */
-#define IS_TM_EVENT(x)  (((x & 0xFFFFFAF0) == 0x0000) && (x != 0x0000))
+#define IS_TM_EVENT(x)  (((x & 0xFFFFF0F0) == 0x0000) && (x != 0x0000))
 /**
  * @brief Used to check parameter of the TM master mode selection.
  */
@@ -630,7 +630,7 @@ typedef struct
 /**
  * @brief Used to check parameter of the TM flag for \ref TM_ClearFlag function.
  */
-#define IS_TM_FLAG_CLR(x) (((x & 0xFFFFFA00) == 0) && (x != 0))
+#define IS_TM_FLAG_CLR(x) (((x & 0xFFFFE000) == 0) && (x != 0))
 /**
  * @brief Used to check value of TM digital filter.
  */

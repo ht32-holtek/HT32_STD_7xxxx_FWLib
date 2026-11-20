@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_i2s.c
- * @version $Rev:: 521          $
- * @date    $Date:: 2026-09-23 #$
+ * @version $Rev:: 571          $
+ * @date    $Date:: 2026-10-30 #$
  * @brief   This file provides all the I2S firmware functions.
  *************************************************************************************************************
  * @attention
@@ -48,6 +48,10 @@
 #define CLK_DIV_EN      (1UL << 15)
 #define BCLK_INV_EN     (1UL << 18)
 #define MCLK_INV_EN     (1UL << 19)
+
+#define RATE_CTRL_EN    (1UL << 16)
+
+#define RATE_SEL_Mas    (1UL << 17)
 
 #define I2S_SLAVE       (1UL << 3)
 /**
@@ -273,11 +277,11 @@ u8 I2S_GetFIFOStatus(HT_I2S_TypeDef* I2Sx, u32 I2S_FIFO)
  * @param I2S_Int: specify if the I2S interrupt source to be enabled or disabled.
  *   This parameter can be any combination of the following values:
  *     @arg I2S_INT_TXFIFO_TRI : I2S Tx FIFO trigger level interrupt
- *     @arg I2S_INT_TXFIFO_UF  : I2S Rx FIFO underflow interrupt
- *     @arg I2S_INT_TXFIFO_OV  : I2S Tx FIFO overflow interrupt
+ *     @arg I2S_INT_TXFIFO_UDF : I2S Rx FIFO underflow interrupt
+ *     @arg I2S_INT_TXFIFO_OVF : I2S Tx FIFO overflow interrupt
  *     @arg I2S_INT_RXFIFO_TRI : I2S Rx FIFO trigger level interrupt
- *     @arg I2S_INT_RXFIFO_UV  : I2S Rx FIFO underflow interrupt
- *     @arg I2S_INT_RXFIFO_OV  : I2S Rx FIFO overflow interrupt
+ *     @arg I2S_INT_RXFIFO_UDF : I2S Rx FIFO underflow interrupt
+ *     @arg I2S_INT_RXFIFO_OVF : I2S Rx FIFO overflow interrupt
  * @param  NewState: This parameter can be ENABLE or DISABLE.
  * @retval None
  ************************************************************************************************************/
@@ -299,9 +303,9 @@ void I2S_IntConfig(HT_I2S_TypeDef* I2Sx, u32 I2S_Int, ControlStatus NewState)
 }
 
 /*********************************************************************************************************//**
- * @brief  Check whether the specified I2S flag has been set or not.
+ * @brief Check whether the specified I2S flag has been set or not.
  * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
- * @param  I2S_Flag: specify the flag that is to be check.
+ * @param I2S_Flag: specify the flag that is to be check.
  *   This parameter can be one of the following values:
  *     @arg I2S_FLAG_TXFIFO_TRI : I2S Tx FIFO trigger level flag
  *     @arg I2S_FLAG_TXFIFO_UDF : I2S Tx FIFO underflow flag
@@ -335,16 +339,16 @@ FlagStatus I2S_GetFlagStatus(HT_I2S_TypeDef* I2Sx, u32 I2S_Flag)
 }
 
 /*********************************************************************************************************//**
- * @brief  Clear the specified I2S flag.
+ * @brief Clear the specified I2S flag.
  * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
- * @param  I2S_Flag: specify the flag that is to be cleared.
+ * @param I2S_Flag: specify the flag that is to be cleared.
  *   This parameter can be any combination of the following values:
  *     @arg I2S_FLAG_TXFIFO_TRI : I2S Tx FIFO trigger level flag
- *     @arg I2S_FLAG_TXFIFO_UV  : I2S Tx FIFO underflow flag
- *     @arg I2S_FLAG_TXFIFO_OV  : I2S Tx FIFO overflow flag
+ *     @arg I2S_FLAG_TXFIFO_UDF : I2S Tx FIFO underflow flag
+ *     @arg I2S_FLAG_TXFIFO_OVF : I2S Tx FIFO overflow flag
  *     @arg I2S_FLAG_RXFIFO_TRI : I2S Rx FIFO trigger level flag
- *     @arg I2S_FLAG_RXFIFO_UV  : I2S Rx FIFO underflow flag
- *     @arg I2S_FLAG_RXFIFO_OV  : I2S Rx FIFO overflow flag
+ *     @arg I2S_FLAG_RXFIFO_UDF : I2S Rx FIFO underflow flag
+ *     @arg I2S_FLAG_RXFIFO_OVF : I2S Rx FIFO overflow flag
  * @retval None
  ************************************************************************************************************/
 void I2S_ClearFlag(HT_I2S_TypeDef* I2Sx, u32 I2S_Flag)
@@ -354,6 +358,58 @@ void I2S_ClearFlag(HT_I2S_TypeDef* I2Sx, u32 I2S_Flag)
   Assert_Param(IS_I2S_FLAG_CLEAR(I2S_Flag));
 
   I2Sx->SR = I2S_Flag;
+}
+
+/*********************************************************************************************************//**
+ * @brief Enable or Disable the I2S rate control.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
+ * @param NewState: This parameter can be ENABLE or DISABLE.
+ * @retval None
+ ************************************************************************************************************/
+void I2S_RateCmd(HT_I2S_TypeDef* I2Sx, ControlStatus NewState)
+{
+  /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
+  Assert_Param(IS_CONTROL_STATUS(NewState));
+
+  if (NewState != DISABLE)
+  {
+    I2Sx->CR |= RATE_CTRL_EN;
+  }
+  else
+  {
+    I2Sx->CR &= ~RATE_CTRL_EN;
+  }
+}
+
+/*********************************************************************************************************//**
+ * @brief Config the I2S rate control speed.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
+ * @param Sel: This parameter can be I2S_RATE_SLOWER or I2S_RATE_FASTER.
+ * @retval None
+ ************************************************************************************************************/
+void I2S_RateConfig(HT_I2S_TypeDef* I2Sx, I2S_RATE_Enum Sel)
+{
+  /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
+  Assert_Param(IS_RATE(Sel));
+
+  I2Sx->CR = (I2Sx->CR & ~RATE_SEL_Mas) | Sel;
+}
+
+/*********************************************************************************************************//**
+ * @brief Set the I2S rate counter value.
+ * @param I2Sx: where I2Sx is the selected I2S from the I2S peripherals.
+ * @param I2S_RateValue: Rate counter value.
+ * @retval None
+ ************************************************************************************************************/
+void I2S_SetRateValue(HT_I2S_TypeDef* I2Sx, u32 I2S_RateValue)
+{
+  /* Check the parameters                                                                                   */
+  Assert_Param(IS_I2S(I2Sx));
+  Assert_Param(IS_RATE_VALUE(I2S_RateValue));
+
+  I2Sx->RCNTR = I2S_RateValue;
 }
 /**
   * @}

@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    CKCU/HSI_AutoTrim_By_USB/main.c
- * @version $Rev:: 471          $
- * @date    $Date:: 2026-06-01 #$
+ * @version $Rev:: 601          $
+ * @date    $Date:: 2026-11-04 #$
  * @brief   The main program of USB Device HID example.
  *************************************************************************************************************
  * @attention
@@ -195,7 +195,7 @@ void UpdateAutoTrimValue(void)
     FLASH_State FLASHState;
     u32 uBuffer = 0;
     SaveAutoTrim_TypeDef *pSaveTrim = (SaveAutoTrim_TypeDef*)&uBuffer;
-    pSaveTrim->TrimValue = (HT_CKCU->HSICR & 0x00FF0000) >> 16;
+    pSaveTrim->TrimValue = CKCU_GetHSIAutoTrimValue();
     pSaveTrim->Header = SAVE_AUTO_TRIM_HEAD_KEY;
     printf("Detect a new Trim Value...\r\n\t\t\tTrim Value : 0x%03X\r\n",pSaveTrim->TrimValue);
     printf("Save the new Trim Value...\r\n");
@@ -254,7 +254,9 @@ void CKCU_LoadTrimValue(void)
   /* the trim value is valid, then reload the trim value to HSICR                                                */
     printf("Load the Trim Value...\r\n\t\t\tTrim Value : 0x%03X\r\n",pSaveTrim->TrimValue);
     gTrimValue = pSaveTrim->TrimValue;
-    HT_CKCU->HSICR = ((pSaveTrim->TrimValue << 16) | (1ul << 4) | (1ul << 0));
+    CKCU_HSIAutoTrimValueConfig(pSaveTrim->TrimValue);
+    CKCU_HSIAutoTrimCmd(ENABLE);
+
   }
 }
 

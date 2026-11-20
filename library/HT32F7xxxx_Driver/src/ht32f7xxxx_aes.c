@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_aes.c
- * @version $Rev:: 300          $
- * @date    $Date:: 2025-09-04 #$
+ * @version $Rev:: 615          $
+ * @date    $Date:: 2026-11-10 #$
  * @brief   This file provides all the AES firmware functions.
  *************************************************************************************************************
  * @attention
@@ -47,6 +47,10 @@ u32 gu32InputSize = 0;
 u32 gu32InputIndex = 0;
 
 vu8 isFirstInputInterruptTrigger;
+
+/* Private constants ---------------------------------------------------------------------------------------*/
+#define AES_ENDIAN_Pos         (9)
+#define AES_ENDIAN_Mas         (1 << AES_ENDIAN_Pos)
 
 /* Private functions ---------------------------------------------------------------------------------------*/
 static void _AES_Init(HT_AES_TypeDef* HT_AESn, AES_InitTypeDef* AES_InitStruct);
@@ -181,6 +185,24 @@ void AES_CTR_Init(HT_AES_TypeDef* HT_AESn, AES_InitTypeDef* AES_InitStruct)
 
   AES_IntConfig(HT_AESn, AES_IER_OFINTEN, ENABLE);
   NVIC_EnableIRQ(AES_IRQn);
+}
+
+/*********************************************************************************************************//**
+ * @brief Configure the AES data endianness.
+ * @param HT_AESn: where HT_AESn is the selected AES peripheral.
+ * @param Endian: Data endianness.
+ *   This parameter can be one of the following values:
+ *      AES_BIG_ENDIAN
+ *      AES_LITTLE_ENDIAN
+ * @retval None
+ ************************************************************************************************************/
+void AES_EndianConfig(HT_AES_TypeDef* HT_AESn, AES_ENDIAN_Enum Endian)
+{
+  /* Check the parameters                                                                                   */
+  Assert_Param(IS_AES(HT_AESn));
+  Assert_Param(IS_AES_ENDIAN(Endian));
+
+  HT_AESn->CR = (HT_AESn->CR & ~AES_ENDIAN_Mas) | Endian;
 }
 
 /*********************************************************************************************************//**

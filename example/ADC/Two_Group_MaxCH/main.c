@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ADC/Two_Group_MaxCH/main.c
- * @version $Rev:: 365          $
- * @date    $Date:: 2025-09-22 #$
+ * @version $Rev:: 567          $
+ * @date    $Date:: 2026-10-29 #$
  * @brief   Main program.
  *************************************************************************************************************
  * @attention
@@ -271,11 +271,15 @@ void ADC_Configuration(void)
   //AFIO_GPxConfig(HTCFG_ADCCH15_GPIO_ID, HTCFG_ADCCH15_AFIO_PIN, AFIO_FUN_ADC0);
 
   { /* ADC related settings                                                                                 */
-    /* CK_ADC frequency is set to (CK_AHB / n)                                                              */
+    /* !!! NOTICE !!!
+       CK_ADC frequency is set to (CK_AHB / n).
+       The ADC clock frequency must meet the minimum requirement.
+       Please refer to the IC Datasheet for detailed specifications.
+    */
     #if (ENABLE_DEBUG_IO == 1)
-    CKCU_SetADCnPrescaler(CKCU_ADCPRE_ADC0, CKCU_ADCPRE_DIV64);
+    CKCU_SetADCnPrescaler(CKCU_ADCPRE_ADC0, CKCU_ADCPRE_DIV8);
     #else
-    CKCU_SetADCnPrescaler(CKCU_ADCPRE_ADC0, CKCU_ADCPRE_DIV3);
+    CKCU_SetADCnPrescaler(CKCU_ADCPRE_ADC0, CKCU_ADCPRE_DIV3); // Note: should be adjust to get max performance
     #endif
 
     /* One Shot mode, sequence length = ADC_GROUP_LIST_LENGTH                                               */

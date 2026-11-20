@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_usbd.c
- * @version $Rev:: 300          $
- * @date    $Date:: 2025-09-04 #$
+ * @version $Rev:: 558          $
+ * @date    $Date:: 2026-10-16 #$
  * @brief   The USB Device Peripheral Driver.
  *************************************************************************************************************
  * @attention
@@ -43,7 +43,7 @@
 /** @defgroup USBDevice_Private_Constant USB Device private constants
   * @{
   */
-#define TCR_MASK                    (0x1FF)
+#define TCR_MASK                    (0x3FF)
 #define EPLEN_MASK                  ((u32)0x000FFC00)
 #define EPBUFA_MASK                 ((u32)0x000003FF)
 #define ISR_EPn_OFFSET              (8)

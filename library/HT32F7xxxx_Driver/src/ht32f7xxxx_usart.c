@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_usart.c
- * @version $Rev:: 259          $
- * @date    $Date:: 2025-06-11 #$
+ * @version $Rev:: 603          $
+ * @date    $Date:: 2026-11-05 #$
  * @brief   This file provides all the USART firmware functions.
  *************************************************************************************************************
  * @attention
@@ -748,8 +748,8 @@ void USART_IrDAInvtCmd(HT_USART_TypeDef* USARTx, u32 inout, ControlStatus NewSta
  * @param USARTx: Parameter to select the USART peripheral.
  * @param USART_RS485Polarity: Specify the polarity of USART RS485 Tx enable signal.
  *   This parameter can be one of the following values:
- *     @arg USART_RS485POL_LOW
- *     @arg USART_RS485POL_HIGH
+ *     @arg USART_RS485POLARITY_LOW
+ *     @arg USART_RS485POLARITY_HIGH
  * @retval None
  ************************************************************************************************************/
 void USART_RS485TxEnablePolarityConfig(HT_USART_TypeDef* USARTx, u32 USART_RS485Polarity)
@@ -902,6 +902,51 @@ void USART_LIN_LengthSelect(HT_USART_TypeDef* USARTx, u32 USART_LIN_Length)
   }
 }
 #endif
+
+/*********************************************************************************************************//**
+ * @brief Configure the USART RTS state by software.
+ * @param USARTx: where USARTx is the selected USART from the USART peripherals.
+ * @param USART_RTS_X: specify if the USARTx RTS to be active or inactive.
+ *   This parameter can be one of the following values:
+ *     @arg USART_RTS_DEASSERT   : deactivate RTS signal
+ *     @arg USART_RTS_ASSERT     : activate RTS signal
+ * @retval None
+ ************************************************************************************************************/
+void USART_WriteSoftwareRTSOutput(HT_USART_TypeDef* USARTx,u32 USART_RTS_X)
+{
+  /* Check the parameters                                                                                   */
+  Assert_Param(IS_USART(USARTx));
+  Assert_Param(IS_USART_RTS(USART_RTS_X));
+
+  if (USART_RTS_X == USART_RTS_ASSERT)
+  {
+    USARTx->CR |= USART_RTS_ASSERT;
+
+  }
+  else
+  {
+    USARTx->CR &= USART_RTS_DEASSERT;
+  }
+}
+/*********************************************************************************************************//**
+ * @brief Get the USART RTS state.
+ * @param USARTx: where USARTx is the selected USART from the USART peripherals.
+ * @retval SET or RESET
+ ************************************************************************************************************/
+FlagStatus USART_ReadRTSOutput(HT_USART_TypeDef* USARTx)
+{
+  /* Check the parameters                                                                                   */
+  Assert_Param(IS_USART(USARTx));
+
+  if ((USARTx->CR & USART_RTS_ASSERT) != USART_RTS_ASSERT)
+  {
+    return RESET;
+  }
+  else
+  {
+    return SET;
+  }
+}
 /**
   * @}
   */

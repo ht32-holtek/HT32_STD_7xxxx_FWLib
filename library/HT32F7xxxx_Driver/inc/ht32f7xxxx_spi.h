@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_spi.h
- * @version $Rev:: 230          $
- * @date    $Date:: 2025-05-13 #$
+ * @version $Rev:: 558          $
+ * @date    $Date:: 2026-10-16 #$
  * @brief   The header file of the SPI library.
  *************************************************************************************************************
  * @attention
@@ -225,7 +225,7 @@ typedef enum
 #define IS_SIO_DIR(x)                               (((x) == SIO_DIR_IN) || ((x) == SIO_DIR_OUT))
 #endif
 
-#define IS_SPI(x)                                   (IS_SPI0(x) || IS_SPI1(x))
+#define IS_SPI(x)                                   (IS_SPI0(x) || IS_SPI1(x) || IS_QSPI(x))
 #define IS_SPI0(x)                                  (x == HT_SPI0)
 #if (LIBCFG_SPI1)
 #define IS_SPI1(x)                                  (x == HT_SPI1)

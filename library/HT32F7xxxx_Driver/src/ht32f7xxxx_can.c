@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_can.c
- * @version $Rev:: 398          $
- * @date    $Date:: 2025-11-05 #$
+ * @version $Rev:: 607          $
+ * @date    $Date:: 2026-11-05 #$
  * @brief   This file provides all the CAN firmware functions.
  *************************************************************************************************************
  * @attention
@@ -252,6 +252,29 @@ CAN_LastErrorCode_TypeDef CAN_GetLastErrorCode(HT_CAN_TypeDef* CANx)
   Assert_Param(IS_CAN(CANx));
 
   return (CAN_LastErrorCode_TypeDef)(CANx->SR & CAN_LEC_Msk);
+}
+
+/*********************************************************************************************************//**
+ * @brief  Returns the CANx Receive Error Passive (RP).
+ * @param  CANx: where the CANx is the selected CAN from the CAN peripherals.
+ * @retval SET or RESET
+ ************************************************************************************************************/
+FlagStatus CAN_GetReceiveErrorPassiveStatus(HT_CAN_TypeDef* CANx)
+{
+  FlagStatus Status;
+
+  /* Check the parameters                                                                                   */
+  Assert_Param(IS_CAN(CANx));
+
+  if ((CANx->ECR & CAN_ECR_RP_Msk) >> CAN_ECR_RP_Pos)
+  {
+    Status = SET;
+  }
+  else
+  {
+    Status = RESET;
+  }
+  return Status;
 }
 
 /*********************************************************************************************************//**

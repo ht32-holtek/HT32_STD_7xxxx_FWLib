@@ -1,8 +1,8 @@
 /***************************************************************************//**
  * @file    ht32f7xxxx_01.h
  * @brief   CMSIS Cortex-M0+ Device Peripheral Access Layer Header File
- * @version $Rev:: 521          $
- * @date    $Date:: 2026-09-23 #$
+ * @version $Rev:: 549          $
+ * @date    $Date:: 2026-10-12 #$
  *
  * @note
  * Copyright (C) Holtek Semiconductor Inc. All rights reserved.
@@ -416,7 +416,8 @@ typedef struct
 typedef struct
 {
   __IO uint32_t CR;              /*!< 0x000         DAC Channel Control Register                            */
-       uint32_t RESERVE0[2];     /*!< 0x004 - 0x008 Reserved                                                */
+  __IO uint32_t TCR;             /*!< 0x004         DAC Channel Trigger Control Register                    */
+  __IO uint32_t TSR;             /*!< 0x008         DAC Channel Trigger Source Register                     */
   __IO uint32_t DHR;             /*!< 0x00C         DAC Channel Data Holding Register                       */
   __IO uint32_t DOR;             /*!< 0x010         DAC Channel Data Output Register                        */
        uint32_t RESERVE1[3];     /*!< 0x014 - 0x01C Reserved                                                */
@@ -430,7 +431,9 @@ typedef struct
                                  /* DAC1: 0x40014000                                                        */
                                  /* DAC0: 0x40054000                                                        */
   __IO uint32_t CFGR;            /*!< 0x000         DAC Configuration Register                              */
-       uint32_t RESERVE0[3];     /*!< 0x004 - 0x00C Reserved                                                */
+  __IO uint32_t IER;             /*!< 0x004         DAC Interrupt Enable Register                           */
+  __IO uint32_t ISR;             /*!< 0x008         DAC Interrupt Status Register                           */
+       uint32_t RESERVE0[1];     /*!< 0x00C         Reserved                                                */
   HT_DACCH_TypeDef DACCH0;       /*!< 0x010         DAC channel 0 registers                                 */
   HT_DACCH_TypeDef DACCH1;       /*!< 0x030         DAC channel 1 registers                                 */
 } HT_DAC_TypeDef;

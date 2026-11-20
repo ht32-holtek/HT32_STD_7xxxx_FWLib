@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_i2c.h
- * @version $Rev:: 495          $
- * @date    $Date:: 2026-09-08 #$
+ * @version $Rev:: 563          $
+ * @date    $Date:: 2026-10-22 #$
  * @brief   The header file of the I2C library.
  *************************************************************************************************************
  * @attention
@@ -155,21 +155,23 @@ typedef enum
 #else
 #define I2C_REGISTER_DR                             ((u8)0x18)
 #endif
-#define I2C_REGISTER_BFCLR                          ((u8)0x1C)
-#define I2C_REGISTER_TAR                            ((u8)0x20)
+#define I2C_REGISTER_TAR                            ((u8)0x1C)
+#define I2C_REGISTER_ADDMR                          ((u8)0x20)
+#define I2C_REGISTER_ADDSR                          ((u8)0x24)
 #if (LIBCFG_I2C_NOSTRETCH)
 #define I2C_REGISTER_RXDR                           ((u8)0x2C)
 #endif
 
-#define IS_I2C_REGISTER(REGISTER)                   ((REGISTER == I2C_REGISTER_CR) || \
-                                                     (REGISTER == I2C_REGISTER_IER) || \
-                                                     (REGISTER == I2C_REGISTER_ADDR) || \
-                                                     (REGISTER == I2C_REGISTER_SR) || \
+#define IS_I2C_REGISTER(REGISTER)                   ((REGISTER == I2C_REGISTER_CR)    || \
+                                                     (REGISTER == I2C_REGISTER_IER)   || \
+                                                     (REGISTER == I2C_REGISTER_ADDR)  || \
+                                                     (REGISTER == I2C_REGISTER_SR)    || \
                                                      (REGISTER == I2C_REGISTER_SHPGR) || \
                                                      (REGISTER == I2C_REGISTER_SLPGR) || \
-                                                     (REGISTER == I2C_REGISTER_DR) || \
-                                                     (REGISTER == I2C_REGISTER_BFCLR) || \
-                                                     (REGISTER == I2C_REGISTER_TAR))
+                                                     (REGISTER == I2C_REGISTER_DR)    || \
+                                                     (REGISTER == I2C_REGISTER_TAR)   || \
+                                                     (REGISTER == I2C_REGISTER_ADDMR) || \
+                                                     (REGISTER == I2C_REGISTER_ADDSR))
 
 
 #define I2C_FLAG_STA                                ((u32)0x00000001)
@@ -192,8 +194,10 @@ typedef enum
 
 #if (LIBCFG_I2C_NOSTRETCH)
 #define IS_FLAG_OVR(x)                              (x == I2C_FLAG_OVR)
+#define IS_CLEAR_FLAG_OVR(x)                        (x == I2C_FLAG_OVR)
 #else
 #define IS_FLAG_OVR(x)                              (0)
+#define IS_CLEAR_FLAG_OVR(x)                        (0)
 #endif
 
 #define IS_I2C_FLAG(FLAG)                           ((FLAG == I2C_FLAG_STA)    || \
@@ -212,7 +216,8 @@ typedef enum
                                                      (FLAG == I2C_FLAG_MASTER) || \
                                                      (FLAG == I2C_FLAG_TXNRX))
 
-#define IS_I2C_CLEAR_FLAG(FLAG)                     ((FLAG == I2C_FLAG_ARBLOS) || \
+#define IS_I2C_CLEAR_FLAG(FLAG)                     (IS_CLEAR_FLAG_OVR(FLAG)   || \
+                                                     (FLAG == I2C_FLAG_ARBLOS) || \
                                                      (FLAG == I2C_FLAG_RXNACK) || \
                                                      (FLAG == I2C_FLAG_BUSERR) || \
                                                      (FLAG == I2C_FLAG_TOUTF))

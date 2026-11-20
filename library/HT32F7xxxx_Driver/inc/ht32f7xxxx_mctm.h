@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_mctm.h
- * @version $Rev:: 248          $
- * @date    $Date:: 2025-05-23 #$
+ * @version $Rev:: 616          $
+ * @date    $Date:: 2026-11-11 #$
  * @brief   The header file of the MCTM library.
  *************************************************************************************************************
  * @attention
@@ -175,8 +175,8 @@ typedef union
   * @{
   */
 #if (LIBCFG_MCTM_ERRORTOBREAK)
-#define MCTM_BS_ECCDOUBLE                   0x00000001
-#define MCTM_BS_LOCKUP                      0x00000002
+#define MCTM_BREAKSOURCE_ECCDOUBLE          0x00000001
+#define MCTM_BREAKSOURCE_CORELOCKUP         0x00000002
 #define IS_MCTM_BREAKSOUCE(BS)              ((((BS) & 0xFFFFFFFC) == 0) && ((BS) != 0))
 #endif
 /**
@@ -265,7 +265,7 @@ void MCTM_CHBRKCTRStructInit(MCTM_CHBRKCTRInitTypeDef* CHBRKCTRInit);
 void MCTM_COMPRECmd(HT_TM_TypeDef* MCTMx, ControlStatus NewState);
 void MCTM_COMUSConfig(HT_TM_TypeDef* MCTMx, MCTM_COMUS_Enum Sel);
 #if (LIBCFG_MCTM_ERRORTOBREAK)
-void MCTM_ErrorBreakCmd(u32 MCTM_BreakSource, ControlStatus NewState);
+void MCTM_ErrorBreakCmd(u32 MCTM_BREAKSOURCE_X, ControlStatus NewState);
 #endif
 /**
   * @}

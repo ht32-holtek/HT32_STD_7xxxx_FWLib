@@ -1,7 +1,7 @@
 /********************************************************************************************************//**
  * @file    ht32f7xxxx_ebi.c
- * @version $Rev:: 15           $
- * @date    $Date:: 2025-01-13 #$
+ * @version $Rev:: 571          $
+ * @date    $Date:: 2026-10-30 #$
  * @brief   This file provides all the EBI firmware functions.
  *************************************************************************************************************
  * @attention
@@ -38,6 +38,9 @@
   */
 
 
+/* Private constants ---------------------------------------------------------------------------------------*/
+#define EBI_RESET        0x00000010
+
 /* Global functions ----------------------------------------------------------------------------------------*/
 /** @defgroup EBI_Exported_Functions EBI exported functions
   * @{
@@ -52,6 +55,15 @@ void EBI_DeInit(void)
 
   RSTCUReset.Bit.EBI = 1;
   RSTCU_PeripReset(RSTCUReset, ENABLE);
+}
+
+/*********************************************************************************************************//**
+ * @brief Reset EBI.
+ * @retval None
+ ************************************************************************************************************/
+void EBI_Reset(void)
+{
+  HT_EBI->SR |= EBI_RESET;
 }
 
 /*********************************************************************************************************//**
@@ -80,6 +92,7 @@ void EBI_Init(EBI_InitTypeDef* EBI_InitStruct)
   Assert_Param(IS_EBI_WRITE_HOLD_TIME(EBI_InitStruct->EBI_WriteHoldTime));
   Assert_Param(IS_EBI_READ_SETUP_TIME(EBI_InitStruct->EBI_ReadSetupTime));
   Assert_Param(IS_EBI_READ_STROBE_TIME(EBI_InitStruct->EBI_ReadStrobeTime));
+  Assert_Param(IS_EBI_READ_HOLD_TIME(EBI_InitStruct->EBI_ReadHoldTime));
 
   HT_EBI->ATR = EBI_InitStruct->EBI_AddressSetupTime |
                 (EBI_InitStruct->EBI_AddressHoldTime << 8);
@@ -99,7 +112,7 @@ void EBI_Init(EBI_InitTypeDef* EBI_InitStruct)
   /*------------------------- EBI Control Register Configuration -------------------------------------------*/
   tmp = (3 << (bank * 2)) | (0x00001000 << bank) |
         (0x00010000 << (bank * 2)) | (0x00020000 << (bank * 2)) |
-        (0x01000000 << bank);
+        (0x01000000 << bank) | (0xF00000000);
   tmp = HT_EBI->CR & (~tmp);
   HT_EBI->CR = (EBI_InitStruct->EBI_Mode << (bank * 2)) |
                (EBI_InitStruct->EBI_IdleCycle << bank) |

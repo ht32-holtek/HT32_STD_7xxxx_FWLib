@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_ebi.h
- * @version $Rev:: 15           $
- * @date    $Date:: 2025-01-13 #$
+ * @version $Rev:: 571          $
+ * @date    $Date:: 2026-10-30 #$
  * @brief   The header file of the EBI library.
  *************************************************************************************************************
  * @attention
@@ -135,21 +135,21 @@ typedef struct
 
 #define IS_EBI_IDLE_CYCLE_TIME(TIME)                (TIME < 0x10)
 
-#define IS_EBI_ADDRESS_SETUP_TIME(TIME)             (TIME < 0x10)
+#define IS_EBI_ADDRESS_SETUP_TIME(TIME)             (TIME < 0x08)
 
-#define IS_EBI_ADDRESS_HOLD_TIME(TIME)              (TIME < 0x10)
+#define IS_EBI_ADDRESS_HOLD_TIME(TIME)              (TIME < 0x08)
 
-#define IS_EBI_WRITE_SETUP_TIME(TIME)               (TIME < 0x10)
+#define IS_EBI_WRITE_SETUP_TIME(TIME)               (TIME < 0x08)
 
-#define IS_EBI_WRITE_STROBE_TIME(TIME)              (TIME < 0x40)
+#define IS_EBI_WRITE_STROBE_TIME(TIME)              (TIME < 0x20)
 
-#define IS_EBI_WRITE_HOLD_TIME(TIME)                (TIME < 0x10)
+#define IS_EBI_WRITE_HOLD_TIME(TIME)                (TIME < 0x08)
 
-#define IS_EBI_READ_SETUP_TIME(TIME)                (TIME < 0x10)
+#define IS_EBI_READ_SETUP_TIME(TIME)                (TIME < 0x08)
 
-#define IS_EBI_READ_STROBE_TIME(TIME)               (TIME < 0x40)
+#define IS_EBI_READ_STROBE_TIME(TIME)               (TIME < 0x20)
 
-#define IS_EBI_READ_HOLD_TIME(TIME)                 (TIME < 0x10)
+#define IS_EBI_READ_HOLD_TIME(TIME)                 (TIME < 0x08)
 /**
   * @}
   */
@@ -159,6 +159,7 @@ typedef struct
   * @{
   */
 void EBI_DeInit(void);
+void EBI_Reset(void);
 void EBI_Init(EBI_InitTypeDef* EBI_InitStruct);
 void EBI_StructInit(EBI_InitTypeDef* EBI_InitStruct);
 void EBI_Cmd(u32 EBI_Bank, ControlStatus NewState);

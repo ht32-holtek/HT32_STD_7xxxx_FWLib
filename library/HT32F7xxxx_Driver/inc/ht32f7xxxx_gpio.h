@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_gpio.h
- * @version $Rev:: 455          $
- * @date    $Date:: 2026-05-04 #$
+ * @version $Rev:: 607          $
+ * @date    $Date:: 2026-11-05 #$
  * @brief   The header file of the GPIO and AFIO library.
  *************************************************************************************************************
  * @attention
@@ -88,6 +88,22 @@ typedef enum
   GPIO_DIR_IN = 0,    /*!< input mode                                                                       */
   GPIO_DIR_OUT        /*!< output mode                                                                      */
 } GPIO_DIR_Enum;
+/**
+ * @brief  Enumeration of GPIO pre-driver current.
+ */
+typedef enum
+{
+  GPIO_PREDRIVER_NORMAL = 0,   /*!< normal mode                                                             */
+  GPIO_PREDRIVER_HIGH          /*!< high mode                                                               */
+} GPIO_PREDRIVER_Enum;
+/**
+ * @brief  Enumeration of GPIO schmitt current.
+ */
+typedef enum
+{
+  GPIO_SCHMITT_NORMAL = 0,     /*!< normal mode                                                             */
+  GPIO_SCHMITT_LOW             /*!< low mode                                                                */
+} GPIO_SCHMITT_Enum;
 /**
  * @brief  Enumeration of AFIO for EXTI channel.
  */
@@ -346,6 +362,12 @@ typedef enum
 /* check parameter of the GPIOx input/output direction                                                      */
 #define IS_GPIO_DIR(x)       (((x) == GPIO_DIR_IN) || ((x) == GPIO_DIR_OUT))
 
+/* check parameter of the GPIOx pre-driver current                                                          */
+#define IS_GPIO_PREDRIVER(x) ((x == GPIO_PREDRIVER_NORMAL) || (x == GPIO_PREDRIVER_HIGH))
+
+/* check parameter of the GPIOx schmitt current                                                             */
+#define IS_GPIO_SCHMITT(x)   ((x == GPIO_SCHMITT_NORMAL) || (x == GPIO_SCHMITT_LOW))
+
 /* check parameter of the EXTI source port                                                                  */
 #define IS_AFIO_ESS(x)       (IS_AFIO_ESS1(x) || IS_AFIO_ESS2(x) || IS_AFIO_ESS3(x) || IS_AFIO_ESS4(x) || IS_AFIO_ESS5(x))
 
@@ -424,6 +446,8 @@ bool GPIO_IsPinLocked(HT_GPIO_TypeDef* HT_GPIOx, u16 GPIO_PIN_n);
 void GPIO_DisableDebugPort(void);
 #endif
 u32 GPIO_GetID(HT_GPIO_TypeDef* HT_GPIOx);
+void GPIO_PreDriverConfig(HT_GPIO_TypeDef* HT_GPIOx, u16 GPIO_PIN_nBITMAP, GPIO_PREDRIVER_Enum GPIO_PREDRIVER_x);
+void GPIO_SchmittConfig(HT_GPIO_TypeDef* HT_GPIOx, u16 GPIO_PIN_nBITMAP, GPIO_SCHMITT_Enum GPIO_SCHMITT_x);
 
 /* Prototype of related AFIO function                                                                       */
 void AFIO_DeInit(void);

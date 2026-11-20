@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_can.h
- * @version $Rev:: 503          $
- * @date    $Date:: 2026-09-16 #$
+ * @version $Rev:: 607          $
+ * @date    $Date:: 2026-11-05 #$
  * @brief   The header file of the CAN library.
  *************************************************************************************************************
  * @attention
@@ -490,6 +490,7 @@ void CAN_ClearFlag(HT_CAN_TypeDef* CANx, u32 CAN_Flag);
 
 /* Error management functions *******************************************************************************/
 CAN_LastErrorCode_TypeDef CAN_GetLastErrorCode(HT_CAN_TypeDef* CANx);
+FlagStatus CAN_GetReceiveErrorPassiveStatus(HT_CAN_TypeDef* CANx);
 u32 CAN_GetReceiveErrorCounter(HT_CAN_TypeDef* CANx);
 u32 CAN_GetLSBTransmitErrorCounter(HT_CAN_TypeDef* CANx);
 void CAN_BusOffRecovery(HT_CAN_TypeDef *CANx);

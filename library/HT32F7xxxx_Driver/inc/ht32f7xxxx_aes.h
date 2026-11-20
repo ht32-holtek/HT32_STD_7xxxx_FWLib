@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_aes.h
- * @version $Rev:: 454          $
- * @date    $Date:: 2026-04-30 #$
+ * @version $Rev:: 615          $
+ * @date    $Date:: 2026-11-10 #$
  * @brief   The header file of the AES library.
  *************************************************************************************************************
  * @attention
@@ -84,11 +84,20 @@ typedef struct
 /* Definitions of AES direction                                                                             */
 typedef enum
 {
-  AES_DIR_ENCRYPT                    =0,
-  AES_DIR_DECRYPT                    =2
+  AES_DIR_ENCRYPT                          =0,
+  AES_DIR_DECRYPT                          =2
 } AES_DIR_Enum;
 
-#define IS_AES_DIR(DIR) ((DIR == AES_DIR_ENCRYPT) || (DIR == AES_DIR_DECRYPT))
+#define IS_AES_DIR(DIR)                    ((DIR == AES_DIR_ENCRYPT) || (DIR == AES_DIR_DECRYPT))
+
+/* Definitions of AES Endian                                                                                */
+typedef enum
+{
+  AES_BIG_ENDIAN                           =(u32)0x00000000,
+  AES_LITTLE_ENDIAN                        =(u32)0x00000200
+} AES_ENDIAN_Enum;
+
+#define IS_AES_ENDIAN(Endian)              ((Endian == AES_BIG_ENDIAN) || (Endian == AES_LITTLE_ENDIAN))
 
 /* Definitions of AES mode                                                                                  */
 #define AES_MODE_ECB                       ((u32)0x00000000)
@@ -162,6 +171,7 @@ typedef enum
 void AES_ECB_Init(HT_AES_TypeDef* HT_AESn, AES_InitTypeDef* AES_InitStruct);
 void AES_CBC_Init(HT_AES_TypeDef* HT_AESn, AES_InitTypeDef* AES_InitStruct);
 void AES_CTR_Init(HT_AES_TypeDef* HT_AESn, AES_InitTypeDef* AES_InitStruct);
+void AES_EndianConfig(HT_AES_TypeDef* HT_AESn, AES_ENDIAN_Enum Endian);
 void AES_SetKeyTable(HT_AES_TypeDef* HT_AESn, u32 *Key, u32 keySize);
 ErrStatus _AES_CryptData(HT_AES_TypeDef* HT_AESn, AES_DIR_Enum dir, u32 *iv, u32 length, u32 *inputData, u32 *outputData);
 #define AES_ECB_CryptData(a, b, c, d, e)     _AES_CryptData(a, b, NULL, c, d, e)

@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_i2s.h
- * @version $Rev:: 521          $
- * @date    $Date:: 2026-09-23 #$
+ * @version $Rev:: 591          $
+ * @date    $Date:: 2026-11-02 #$
  * @brief   The header file of the I2S library.
  *************************************************************************************************************
  * @attention
@@ -211,6 +211,15 @@ typedef struct
 #define IS_I2S1(x)                                (0)
 #endif
 
+/* Rate Control                                                                                             */
+typedef enum
+{
+  I2S_RATE_SLOWER                               = (u32)0x00000000,
+  I2S_RATE_FASTER                               = (u32)0x00020000
+} I2S_RATE_Enum;
+
+#define IS_RATE(x)                                ((x == I2S_RATE_SLOWER) || (x == I2S_RATE_FASTER))
+#define IS_RATE_VALUE(x)                          (x < 0x000FFFFF)
 /**
   * @}
   */
@@ -231,6 +240,9 @@ u8 I2S_GetFIFOStatus(HT_I2S_TypeDef* I2Sx, u32 I2S_FIFO);
 void I2S_IntConfig(HT_I2S_TypeDef* I2Sx, u32 I2S_Int, ControlStatus NewState);
 FlagStatus I2S_GetFlagStatus(HT_I2S_TypeDef* I2Sx, u32 I2S_Flag);
 void I2S_ClearFlag(HT_I2S_TypeDef* I2Sx, u32 I2S_Flag);
+void I2S_RateCmd(HT_I2S_TypeDef* I2Sx, ControlStatus NewState);
+void I2S_RateConfig(HT_I2S_TypeDef* I2Sx, I2S_RATE_Enum Sel);
+void I2S_SetRateValue(HT_I2S_TypeDef* I2Sx, u32 I2S_RateValue);
 /**
   * @}
   */

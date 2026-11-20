@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_sci.c
- * @version $Rev:: 509          $
- * @date    $Date:: 2026-09-21 #$
+ * @version $Rev:: 598          $
+ * @date    $Date:: 2026-11-04 #$
  * @brief   This file provides all the SCI firmware functions.
  *************************************************************************************************************
  * @attention
@@ -452,6 +452,22 @@ void SCI_PDMACmd(HT_SCI_TypeDef* SCIx, u32 SCI_PDMAREQ, ControlStatus NewState)
   }
 }
 #endif
+
+/*********************************************************************************************************//**
+ * @brief Return the Interrupt flags of SCI.
+ * @retval This function will return one of the following:
+ *   - 0x0000                                   : There is no flag is set.
+ *   - 0x0001 (SCI_INT_PAR)                     : SCI parity error interrupt
+ *   - 0x0002 (SCI_INT_RXC)                     : SCI received character interrupt
+ *   - 0x0004 (SCI_INT_TXC)                     : SCI transmitted character interrupt
+ *   - 0x0008 (SCI_INT_WT)                      : SCI waiting timer interrupt
+ *   - 0x0040 (SCI_INT_CARD)                    : SCI card insert/remove interrupt
+ *   - 0x0080 (SCI_INT_TXBE)                    : SCI transmit buffer empty interrupt
+ ************************************************************************************************************/
+u32 SCI_ReadClearIntStatus(HT_SCI_TypeDef* SCIx)
+{
+  return SCIx->IPR;
+}
 /**
   * @}
   */

@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    MCTM/Error_ToBreak/main.c
- * @version $Rev:: 248          $
- * @date    $Date:: 2025-05-23 #$
+ * @version $Rev:: 609          $
+ * @date    $Date:: 2026-11-09 #$
  * @brief   Main program.
  *************************************************************************************************************
  * @attention
@@ -60,7 +60,7 @@ int main(void)
   MCTM_Configuration();
   RETARGET_Configuration();           /* Retarget Related configuration                                     */
 
-  MCTM_ErrorBreakCmd(MCTM_BS_ECCDOUBLE, ENABLE);
+  MCTM_ErrorBreakCmd(MCTM_BREAKSOURCE_ECCDOUBLE, ENABLE);
 
   __Delay(2000000);
 

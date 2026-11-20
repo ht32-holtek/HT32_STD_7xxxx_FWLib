@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_i2c.c
- * @version $Rev:: 495          $
- * @date    $Date:: 2026-09-08 #$
+ * @version $Rev:: 558          $
+ * @date    $Date:: 2026-10-16 #$
  * @brief   This file provides all the I2C firmware functions.
  *************************************************************************************************************
  * @attention
@@ -150,17 +150,12 @@ ErrStatus I2C_Init(HT_I2C_TypeDef* I2Cx, I2C_InitTypeDef* I2C_InitStruct)
   #if (LIBCFG_I2C_NOSTRETCH)
   Assert_Param(IS_I2C_STRETCH(I2C_InitStruct->I2C_StretchMode));
 
-  if (I2C_InitStruct->I2C_StretchMode == I2C_STRETCH_BYPASSADRS || I2C_InitStruct->I2C_StretchMode == I2C_STRETCH_NO)
-  {
-    I2Cx->CR = (I2Cx->CR & 0xFFFFFF1A) | I2C_InitStruct->I2C_GeneralCall | I2C_InitStruct->I2C_StretchMode |
-               I2C_InitStruct->I2C_AddressingMode | I2C_InitStruct->I2C_Acknowledge;
-  }
-  else
+  I2Cx->CR = (I2Cx->CR & 0xFFFFFF1A) | I2C_InitStruct->I2C_GeneralCall | I2C_InitStruct->I2C_StretchMode |
+             I2C_InitStruct->I2C_AddressingMode | I2C_InitStruct->I2C_Acknowledge;
+  #else
+  I2Cx->CR = (I2Cx->CR & 0xFFFFFF7A) | I2C_InitStruct->I2C_GeneralCall |
+             I2C_InitStruct->I2C_AddressingMode | I2C_InitStruct->I2C_Acknowledge;
   #endif
-  {
-    I2Cx->CR = (I2Cx->CR & 0xFFFFFF7A) | I2C_InitStruct->I2C_GeneralCall |
-               I2C_InitStruct->I2C_AddressingMode | I2C_InitStruct->I2C_Acknowledge;
-  }
 
   I2Cx->ADDR = I2C_InitStruct->I2C_OwnAddress;
 
@@ -219,6 +214,11 @@ ErrStatus I2C_Init(HT_I2C_TypeDef* I2Cx, I2C_InitTypeDef* I2C_InitStruct)
   /* If SHPGR or SLPGR exceeds the 8-bit maximum value (255), it means the current                        */
   /* PCLK is too high, causing the calculated timing parameters to overflow the 8-bit registers.          */
   if((SHPGR > 255) || (SLPGR > 255))
+  {
+      return ERROR;
+  }
+  #else
+  if((SHPGR > 65535) || (SLPGR > 65535))
   {
       return ERROR;
   }
@@ -458,6 +458,8 @@ u8 I2C_ReceiveData(HT_I2C_TypeDef* I2Cx)
  *     @arg I2C_REGISTER_SLPGR : SCL Low Period Generation Register
  *     @arg I2C_REGISTER_DR    : Data Register
  *     @arg I2C_REGISTER_TAR   : Target Register
+ *     @arg I2C_REGISTER_ADDMR : Address Mask Register
+ *     @arg I2C_REGISTER_ADDSR : Address Snoop Register
  * @retval None
  ************************************************************************************************************/
 u32 I2C_ReadRegister(HT_I2C_TypeDef* I2Cx, u8 I2C_Register)
@@ -489,6 +491,7 @@ u32 I2C_ReadRegister(HT_I2C_TypeDef* I2Cx, u8 I2C_Register)
  *     @arg I2C_FLAG_RXDNE   : I2C Rx data not empty flag
  *     @arg I2C_FLAG_TXDE    : I2C Tx data empty flag
  *     @arg I2C_FLAG_RXBF    : I2C RX buffer full flag
+ *     @arg I2C_FLAG_TOUTF   : I2C Timeout counter underflow flag
  *     @arg I2C_FLAG_BUSBUSY : I2C bus busy flag
  *     @arg I2C_FLAG_MASTER  : I2C master mode flag (Master flag)
  *     @arg I2C_FLAG_TXNRX   : I2C transmitter mode flag
@@ -555,9 +558,11 @@ ErrStatus I2C_CheckStatus(HT_I2C_TypeDef* I2Cx, u32 I2C_Status)
  * @param I2Cx: where I2Cx is the selected I2C from the I2C peripherals.
  * @param I2C_Flag: specify the flag that is to be cleared.
  *   This parameter can be one of the following values:
+ *     @arg I2C_FLAG_OVR    : I2C overrun or underrun Flag
  *     @arg I2C_FLAG_ARBLOS : I2C arbitration flag
  *     @arg I2C_FLAG_RXNACK : I2C receive not acknowledge flag
  *     @arg I2C_FLAG_BUSERR : I2C Bus error flag
+ *     @arg I2C_FLAG_TOUTF  : I2C timeout counter underflow Flag
  * @retval None
  ************************************************************************************************************/
 void I2C_ClearFlag(HT_I2C_TypeDef* I2Cx, u32 I2C_Flag)
@@ -697,6 +702,7 @@ void I2C_SetTimeOutValue(HT_I2C_TypeDef* I2Cx, u32 I2C_Timeout)
  *     @arg I2C_PRESCALER_1   : I2C prescaler set to 1
  *     @arg I2C_PRESCALER_2   : I2C prescaler set to 2
  *     @arg I2C_PRESCALER_4   : I2C prescaler set to 4
+ *     @arg I2C_PRESCALER_8   : I2C prescaler set to 8
  *     @arg I2C_PRESCALER_16  : I2C prescaler set to 16
  *     @arg I2C_PRESCALER_32  : I2C prescaler set to 32
  *     @arg I2C_PRESCALER_64  : I2C prescaler set to 64
@@ -713,7 +719,7 @@ void I2C_SetTimeOutPrescaler(HT_I2C_TypeDef* I2Cx, u32 I2C_Prescaler)
 }
 
 /*********************************************************************************************************//**
- * @brief This function is used to determine the prescaler of I2C timeout value.
+ * @brief This function is used to configure the I2C slave address mask.
  * @param I2Cx: where I2Cx is the selected I2C from the I2C peripherals.
  * @param I2C_Mask: specify the bit position of I2C slave address to be masked.
  *   This parameter can be any combination of the following values:
@@ -834,7 +840,7 @@ void I2C_SequentialFilterConfig(HT_I2C_TypeDef* I2Cx, u32 Seq_Filter_Select)
 
 #if (LIBCFG_I2C_NOSTRETCH)
 /*********************************************************************************************************//**
- * @brief This function is used to clear TXDR data.
+ * @brief This function clears TXDR data and is only applicable in No Stretch mode.
  * @param I2Cx: where I2Cx is the selected I2C from the I2C peripherals.
  * @retval None
  ************************************************************************************************************/

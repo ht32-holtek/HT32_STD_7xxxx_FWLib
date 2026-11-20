@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    Release_Notes.txt
- * @version V1.1
- * @date    2026-09-24
+ * @version V1.2.1
+ * @date    2026-11-11
  * @brief   The Release notes of HT32 Firmware Library.
  *************************************************************************************************************
  * @attention
@@ -28,6 +28,109 @@
 // Supported Device
 // ========================================
 //   HT32F72368, HT32F72378, HT32F72388
+
+/*----------------------------------------------------------------------------------------------------------*/
+/* HT32_STD_7xxxx_FWLib_V1.2.1_628                                                                          */
+/*----------------------------------------------------------------------------------------------------------*/
+Release Date: 2026-11-11
+  Main Changes
+  + Add HT32_VSCode Project support of example codes.
+  + Update HT32 Stack Usage Analysis feature.
+    - Update "ht32_cm0plus_misc.c/.h" to improve stack boundary handling and support "USE_IAP_SCVD".
+    - Add the weak attribute to "StackUsageAnalysisInit()" for Arm Compiler V6 and GNU Compiler.
+    - Update "utilities/keil_scvd/StackUsageAnalysis.scvd" to improve display and naming consistency.
+    - Add "utilities/keil_scvd/StackUsageAnalysis_iap.scvd" to support IAP stack usage analysis.
+    - Update project files to support the corresponding HT32 Stack Usage Analysis component viewer.
+  + Update ADC driver and examples:
+    - Update ADC examples to ensure the ADC clock frequency meets the minimum operating requirement.
+      - Change the ADC clock prescaler from DIV64 to DIV8.
+    - Add "ADC_GetAWDThresholdsStatus()" API to retrieve the channel that triggered the upper/lower threshold
+    - Update the "ADC/AnalogWatchdog" example to use the newly added API.
+    - Add "ADC_GetVoltageReferenceValue()" API to Get the internal voltage reference calibration value.
+  + Update AES driver:
+    - Add "AES_EndianConfig()" API to config big/little endian.
+  + Update CAN driver:
+    - Add "CAN_GetReceiveErrorPassiveStatus()" API to get receive error passive status.
+  + Update CKCU driver:
+    - Add "CKCU_GetHSIAutoTrimValue()" API to get HSI auto trim value.
+    - Add "CKCU_HSIAutoTrimValueConfig()" API to config HSI auto trim value.
+    - Update the "HSI_AutoTrim_By_USB" example to use the newly added APIs.
+  + Update DAC driver and examples:
+    - Add New Example:
+      - DAC/TMTrigger_PDMA
+      - DAC/EXTITrigger
+      - DAC/SWTrigger
+    - Add "DAC_IntConfig()" API to enable/disable the specified DAC interrupts.
+    - Add "DAC_GetIntStatus()" API to check whether the specified DAC interrupt has occurred.
+    - Add "DAC_ClearIntPendingBit()" API to clear the DAC interrupt flag.
+    - Add "DAC_PDMACmd()" API to enable/disable the specified DAC Channel for PDMA request.
+    - Add "DAC_TrigSourceConfig()" API to config the DAC trigger source for regular channels conversion.
+    - Add "DAC_TrigCmd()" API to enable/disable the specified DAC Channel for regular trigger.
+    - Add "DAC_SoftwareStartConvCmd()" API to enable/disable software start of the regular channel
+      conversion of the selected DAC.
+    - Update DAC register mappings to expose channel TCR/TSR and peripheral IER/ISR.
+  + Update DIV driver:
+    - Update DIV_uDiv32() to check 0/0 in the equal-operands fast path when divide-by-zero checking is enabled.
+  + Update EBI driver:
+    - Add "EBI_Reset()" API to reset EBI.
+    - Add the missing EBI_ReadHoldTime parameter check in EBI_Init().
+  + Update EXTI driver:
+    - Update EXTI_SWIntCmd() to preserve other software interrupt command bits when enabling a channel.
+  + Update GPIO driver:
+    - Add "GPIO_PreDriverConfig()" API to config the per-driver function of specified GPIO pins.
+    - Add "GPIO_SchmittConfig()" API to config the schmitt function of specified GPIO pins.
+  + Update I2C driver and example:
+    - Update I2C initialization to apply the "StretchMode" setting consistently when "LIBCFG_I2C_NOSTRETCH" is enabled.
+    - Add a maximum value check of 65535 for non-8-bit SHPGR/SLPGR configurations.
+    - Correct the "I2C_REGISTER_TAR" address from 0x20 to 0x1C.
+    - Remove "I2C_REGISTER_BFCLR" and add "I2C_REGISTER_ADDMR" (0x20) and "I2C_REGISTER_ADDSR" (0x24).
+    - Update the "I2C/EEPROM" example to increase the heap size from 0 to 512 bytes to support the rand() function when using GNU Compiler.
+  + Update I2S driver:
+    - Add "I2S_RateCmd()" API to enable/disable the I2S rate control.
+    - Add "I2S_RateConfig()" API to config the I2S rate control speed.
+    - Add "I2S_SetRateValue()" API to set the I2S rate counter value.
+    - Update the "USBD/USB_UAC_Sound_RateControl" example to use the newly added APIs.
+  + Update MCTM driver:
+    - "MCTM_BS_ECCDOUBLE" rename to "MCTM_BREAKSOURCE_ECCDOUBLE".
+    - "MCTM_BS_LOCKUP" rename to "MCTM_BREAKSOURCE_CORELOCKUP".
+    - Update "MCTM_ErrorBreakCmd()" to enable break sources only, as passing DISABLE has no effect and disabling requires a system reset.
+  + Update RTC driver:
+    - Update RTC_GetPrescaler() to mask CR[11:8] and add parameter validation to RTC_Cmd().
+  + Update SCI driver:
+    - Add "SCI_ReadClearIntStatus()" API to return the Interrupt flags of SCI.
+  + Update SPI driver:
+    - Update SPI_GUARDTConfig() and SPI_SELHTConfig() to preserve the upper 16 bits of CR0.
+  + Update USART driver:
+    - Add "USART_WriteSoftwareRTSOutput()" API to config the USART RTS state by software.
+    - Add "USART_ReadRTSOutput()" API to get the USART RTS state.
+  + Update USBD driver:
+    - Update USBD_EPTGetTransferCount() to retain the full 10-bit transfer count (mask 0x3FF).
+ 
+  Others
+  + Update comment, format, typing error, and coding style.
+  + Update and sync "ht32f7xxxx_conf.h".
+  + Update "afterbuild.bat" functions of the GNU_ARM project.
+  + Update Create Project script to support HT32_VSCode.
+  + Update content of "project_template/IP/Example/readme.txt", add HT32_VSCode related information.
+  + Update the following EBI macros to reduce the maximum allowed timing values:
+    - "IS_EBI_ADDRESS_SETUP_TIME"
+    - "IS_EBI_ADDRESS_HOLD_TIME"
+    - "IS_EBI_WRITE_SETUP_TIME"
+    - "IS_EBI_WRITE_STROBE_TIME"
+    - "IS_EBI_WRITE_HOLD_TIME"
+    - "IS_EBI_READ_SETUP_TIME"
+    - "IS_EBI_READ_STROBE_TIME"
+    - "IS_EBI_READ_HOLD_TIME"
+  + Update "IS_I2C_REGISTER" macro to remove validation for "I2C_REGISTER_BFCLR" and add validation
+    for "I2C_REGISTER_ADDMR" and "I2C_REGISTER_ADDSR".
+  + Update "IS_I2C_CLEAR_FLAG" macro to support "I2C_FLAG_OVR".
+  + Update "IS_PDMA_WIDTH" macro to fix transfer width parameter validation.
+  + Update "IS_SPI" macro to include the "IS_QSPI" check.
+  + Update "IS_TM_PDMA" macro to allow bit 25 in parameter validation.
+  + Update "IS_TM_EVENT" macro to allow bits 9 and 11 in parameter validation.
+  + Update "IS_TM_FLAG_CLR" macro to allow bits 9, 11, and 12 in parameter validation.
+  + Update "IS_USART_PARITY" macro to support MARK and SPACE parity modes.
+  + Update "IS_USART_IRDA_PRESCALER" macro to validate the IrDA prescaler range (0x01 to 0xFF).
 
 /*----------------------------------------------------------------------------------------------------------*/
 /* HT32_STD_7xxxx_FWLib_V1.1_538                                                                            */

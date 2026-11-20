@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_sci.h
- * @version $Rev:: 527          $
- * @date    $Date:: 2026-09-23 #$
+ * @version $Rev:: 598          $
+ * @date    $Date:: 2026-11-04 #$
  * @brief   The header file of the SCI library.
  *************************************************************************************************************
  * @attention
@@ -260,6 +260,7 @@ void SCI_ClearFlag(HT_SCI_TypeDef* SCIx, u32 SCI_Flag);
 #if (LIBCFG_PDMA)
 void SCI_PDMACmd(HT_SCI_TypeDef* SCIx, u32 SCI_PDMAREQ, ControlStatus NewState);
 #endif
+u32 SCI_ReadClearIntStatus(HT_SCI_TypeDef* SCIx);
 /**
   * @}
   */

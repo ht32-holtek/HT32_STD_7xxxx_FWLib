@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_adc.h
- * @version $Rev:: 230          $
- * @date    $Date:: 2025-05-13 #$
+ * @version $Rev:: 591          $
+ * @date    $Date:: 2026-11-02 #$
  * @brief   The header file of the ADC library.
  *************************************************************************************************************
  * @attention
@@ -333,6 +333,12 @@
 
 #define IS_ADC_THRESHOLD(THRESHOLD)             ((THRESHOLD) < 4096)
 
+#define ADC_AWD_UPPER                           (u8)0x00
+#define ADC_AWD_LOWER                           (u8)0x01
+
+#define IS_ADC_AWD_THRESHOLD(SEL)               ((SEL == ADC_AWD_UPPER)             || \
+                                                 (SEL == ADC_AWD_LOWER))
+
 #if (LIBCFG_PDMA)
 #define ADC_PDMA_REGULAR_SINGLE                 (0x00000001)
 #define ADC_PDMA_REGULAR_SUBGROUP               (0x00000002)
@@ -361,6 +367,9 @@
                                                  (SEL == ADC_VREF_2V0) || \
                                                  (SEL == ADC_VREF_2V5) || \
                                                  (SEL == ADC_VREF_2V7))
+
+#define ADC_VREFVALR_MASK                       (0x7F)
+
 /**
   * @}
   */
@@ -390,6 +399,7 @@ FlagStatus ADC_GetFlagStatus(HT_ADC_TypeDef* HT_ADCn, u32 ADC_FLAG_x);
 void ADC_AWDConfig(HT_ADC_TypeDef* HT_ADCn, u32 ADC_AWD_x);
 void ADC_AWDSingleChannelConfig(HT_ADC_TypeDef* HT_ADCn, u8 ADC_CH_n);
 void ADC_AWDThresholdsConfig(HT_ADC_TypeDef* HT_ADCn, u16 UPPER, u16 LOWER);
+u8 ADC_GetAWDThresholdsStatus(HT_ADC_TypeDef* HT_ADCn, u8 Sel);
 
 #if (LIBCFG_PDMA)
 void ADC_PDMAConfig(HT_ADC_TypeDef* HT_ADCn, u32 ADC_PDMA_x, ControlStatus NewState);
@@ -399,6 +409,8 @@ void ADC_PDMAConfig(HT_ADC_TypeDef* HT_ADCn, u32 ADC_PDMA_x, ControlStatus NewSt
 void ADC_VREFCmd(HT_ADC_TypeDef* HT_ADCn, ControlStatus NewState);
 void ADC_VREFConfig(HT_ADC_TypeDef* HT_ADCn, u32 ADC_VREF_x);
 #endif
+
+u8 ADC_GetVoltageReferenceValue(HT_ADC_TypeDef* HT_ADCn);
 
 #if (LIBCFG_ADC_MVDDA)
 void ADC_MVDDACmd(HT_ADC_TypeDef* HT_ADCn, ControlStatus NewState);

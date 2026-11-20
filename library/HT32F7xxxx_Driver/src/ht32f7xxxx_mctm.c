@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_mctm.c
- * @version $Rev:: 248          $
- * @date    $Date:: 2025-05-23 #$
+ * @version $Rev:: 613          $
+ * @date    $Date:: 2026-11-10 #$
  * @brief   This file provides all the MCTM firmware functions.
  *************************************************************************************************************
  * @attention
@@ -254,27 +254,25 @@ void MCTM_COMUSConfig(HT_TM_TypeDef* MCTMx, MCTM_COMUS_Enum Sel)
 }
 #if (LIBCFG_MCTM_ERRORTOBREAK)
 /*********************************************************************************************************//**
- * @brief Configure the MCTM Break Source.
- * @param MCTM_BreakSource: where MCTM Break Source is the selected error from the SYSTEM peripherals.
- *   This parameter can be one of the following values:
- *     @arg MCTM_BS_ECCDOUBLE : RAM ECC Double Error Lock
- *     @arg MCTM_BS_LOCKUP    : MCU Core LOCKUP State Lock
- * @param NewState: This parameter can be ENABLE or DISABLE.
+ * @brief Enable the MCTM Break Source.
+ * @param MCTM_BREAKSOURCE_X: where MCTM Break Source is the selected error from the SYSTEM peripherals.
+ *   This parameter can be any combination of the following values:
+ *     @arg MCTM_BREAKSOURCE_ECCDOUBLE    : RAM ECC Double Error Lock
+ *     @arg MCTM_BREAKSOURCE_CORELOCKUP : MCU Core LOCKUP State Lock
+ * @param NewState: This parameter can be ENABLE.
  * @retval None
+ * @note Once enabled, setting NewState to DISABLE has no effect.
+ *       The function can only be disabled by a system reset.
  ************************************************************************************************************/
-void MCTM_ErrorBreakCmd(u32 MCTM_BreakSource, ControlStatus NewState)
+void MCTM_ErrorBreakCmd(u32 MCTM_BREAKSOURCE_X, ControlStatus NewState)
 {
   /* Check the parameters                                                                                   */
-  Assert_Param(IS_MCTM_BREAKSOUCE(MCTM_BreakSource));
+  Assert_Param(IS_MCTM_BREAKSOUCE(MCTM_BREAKSOURCE_X));
   Assert_Param(IS_CONTROL_STATUS(NewState));
 
-  if (NewState != DISABLE)
+  if (NewState == ENABLE)
   {
-    HT_SYSTEM->SYSCFGR |= MCTM_BreakSource;
-  }
-  else
-  {
-    HT_SYSTEM->SYSCFGR &= ~MCTM_BreakSource;
+    HT_SYSTEM->SYSCFGR |= MCTM_BREAKSOURCE_X;
   }
 }
 #endif

@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_usart.h
- * @version $Rev:: 259          $
- * @date    $Date:: 2025-06-11 #$
+ * @version $Rev:: 604          $
+ * @date    $Date:: 2026-11-05 #$
  * @brief   The header file of the USART library.
  *************************************************************************************************************
  * @attention
@@ -125,7 +125,10 @@ typedef struct
 
 #define IS_USART_PARITY(PARITY)       ((PARITY == USART_PARITY_NO)   || \
                                        (PARITY == USART_PARITY_EVEN) || \
-                                       (PARITY == USART_PARITY_ODD))
+                                       (PARITY == USART_PARITY_ODD)  || \
+                                       (PARITY == USART_PARITY_MARK) || \
+                                       (PARITY == USART_PARITY_SPACE))
+
 /**
   * @}
   */
@@ -417,9 +420,14 @@ typedef struct
 #define IS_USART_BAUDRATE(BAUDRATE)             ((BAUDRATE > 0) && (BAUDRATE < 0x0044AA21))
 #define IS_USART_DATA(DATA)                     (DATA <= 0x1FF)
 #define IS_USART_GUARD_TIME(TIME)               (TIME <= 0xFF)
-#define IS_USART_IRDA_PRESCALER(PRESCALER)      (PRESCALER <= 0xFF)
+#define IS_USART_IRDA_PRESCALER(PRESCALER)      (((PRESCALER) >= 0x01) && ((PRESCALER) <= 0xFF))
 #define IS_USART_TIMEOUT(TIMEOUT)               (TIMEOUT <= 0x7F)
 #define IS_USART_ADDRESS_MATCH_VALUE(VALUE)     (VALUE <= 0xFF)
+
+#define USART_RTS_ASSERT                        ((u32)0x00008000)
+#define USART_RTS_DEASSERT                      ((u32)0xFFFF7FFF)
+#define IS_USART_RTS(SEL)                       ((SEL == USART_RTS_DEASSERT) || \
+                                                 (SEL == USART_RTS_ASSERT))
 /**
   * @}
   */
@@ -482,6 +490,9 @@ void USART_SynClockStructInit(USART_SynClock_InitTypeDef* USART_SynClock_InitStr
 void USART_LIN_SendBreak(HT_USART_TypeDef* USARTx);
 void USART_LIN_LengthSelect(HT_USART_TypeDef* USARTx, u32 USART_LIN_Length);
 #endif
+
+void USART_WriteSoftwareRTSOutput(HT_USART_TypeDef* USARTx,u32 USART_RTS_X);
+FlagStatus USART_ReadRTSOutput(HT_USART_TypeDef* USARTx);
 /**
   * @}
   */

@@ -34,8 +34,8 @@
 #endif
 
 /* Settings ------------------------------------------------------------------------------------------------*/
-#define HT32_FWLIB_VER                  (0x01001000)
-#define HT32_FWLIB_SVN                  (0x538)
+#define HT32_FWLIB_VER                  (0x01002001)
+#define HT32_FWLIB_SVN                  (0x628)
 
 #if defined(USE_HT32F72368_78_88)
   #include "ht32f72368_78_88_libcfg.h"

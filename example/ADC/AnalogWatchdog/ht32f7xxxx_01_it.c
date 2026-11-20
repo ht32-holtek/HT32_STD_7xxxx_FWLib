@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ADC/AnalogWatchdog/ht32f7xxxx_01_it.c
- * @version $Rev:: 365          $
- * @date    $Date:: 2025-09-22 #$
+ * @version $Rev:: 608          $
+ * @date    $Date:: 2026-11-06 #$
  * @brief   This file provides all interrupt service routine.
  *************************************************************************************************************
  * @attention
@@ -134,15 +134,23 @@ void HTCFG_ADC_IRQHandler(void)
   if (ADC_GetIntStatus(HTCFG_ADC_PORT, ADC_INT_AWD_LOWER))
   {
     ADC_ClearIntPendingBit(HTCFG_ADC_PORT, ADC_INT_AWD_LOWER);
-    HT32_DVB_LEDOn(HT_LED2);
-    HT32_DVB_LEDOff(HT_LED1);
+
+    if (HTCFG_VR_ADC_CH == ADC_GetAWDThresholdsStatus(HTCFG_ADC_PORT, ADC_AWD_LOWER))
+    {
+      HT32_DVB_LEDOn(HT_LED2);
+      HT32_DVB_LEDOff(HT_LED1);
+    }
   }
 
   if (ADC_GetIntStatus(HTCFG_ADC_PORT, ADC_INT_AWD_UPPER))
   {
     ADC_ClearIntPendingBit(HTCFG_ADC_PORT, ADC_INT_AWD_UPPER);
-    HT32_DVB_LEDOn(HT_LED1);
-    HT32_DVB_LEDOff(HT_LED2);
+
+    if (HTCFG_VR_ADC_CH == ADC_GetAWDThresholdsStatus(HTCFG_ADC_PORT, ADC_AWD_UPPER))
+    {
+      HT32_DVB_LEDOn(HT_LED1);
+      HT32_DVB_LEDOff(HT_LED2);
+    }
   }
 }
 

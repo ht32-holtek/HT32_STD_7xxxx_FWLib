@@ -1,7 +1,7 @@
 /*********************************************************************************************************//**
  * @file    ht32f7xxxx_adc.c
- * @version $Rev:: 503          $
- * @date    $Date:: 2026-09-16 #$
+ * @version $Rev:: 571          $
+ * @date    $Date:: 2026-10-30 #$
  * @brief   This file provides all the ADC firmware functions.
  *************************************************************************************************************
  * @attention
@@ -46,6 +46,10 @@
 #define ADC_SOFTWARE_RESET   (0x00000040)
 #define LST_SEQ_SET          (0x0000001F)
 #define TCR_SC_SET           (0x00000001)
+
+#define AWD_UPPER_Pos        (24)
+#define AWD_LOWER_Pos        (16)
+#define AWD_UPPER_LOWER_Mas  (0x0F)
 
 #define ADC_VREF_MVDDAEN     (0x00000100)
 /**
@@ -443,6 +447,35 @@ void ADC_AWDThresholdsConfig(HT_ADC_TypeDef* HT_ADCn, u16 UPPER, u16 LOWER)
   HT_ADCn->WTR = (UPPER << 16) | LOWER;
 }
 
+/*********************************************************************************************************//**
+ * @brief Get the ADC channel number associated with the selected analog watchdog threshold violation.
+ * @param HT_ADCn: where HT_ADCn is the selected ADC from the ADC peripherals.
+ * @param Sel: Specifies the analog watchdog threshold status to read.
+ *   This parameter can be one of the following values:
+ *      @arg ADC_AWD_UPPER: Get the channel whose conversion result exceeded the upper threshold.
+ *      @arg ADC_AWD_LOWER: Get the channel whose conversion result fell below the lower threshold.
+ * @retval ADC channel number (0 to 11)
+ ************************************************************************************************************/
+u8 ADC_GetAWDThresholdsStatus(HT_ADC_TypeDef* HT_ADCn, u8 Sel)
+{
+  u32 Status;
+
+  /* Check the parameters                                                                                   */
+  Assert_Param(IS_ADC(HT_ADCn));
+  Assert_Param(IS_ADC_AWD_THRESHOLD(Sel));
+
+  Status = HT_ADCn->WCR;
+  if (Sel != ADC_AWD_UPPER)
+  {
+    Status = (Status >> AWD_LOWER_Pos) & AWD_UPPER_LOWER_Mas;
+  }
+  else
+  {
+    Status = (Status >> AWD_UPPER_Pos) & AWD_UPPER_LOWER_Mas;
+  }
+  return (u8)Status;
+}
+
 #if (LIBCFG_PDMA)
 /*********************************************************************************************************//**
  * @brief Enable or Disable the specified PDMA request.
@@ -516,6 +549,19 @@ void ADC_VREFConfig(HT_ADC_TypeDef* HT_ADCn, u32 ADC_VREF_x)
   HT_ADCn->VREFCR = (HT_ADCn->VREFCR & ~(3ul << 4)) | (ADC_VREF_x);
 }
 #endif
+
+/*********************************************************************************************************//**
+ * @brief Get the internal voltage reference calibration value.
+ * @param HT_ADCn: where HT_ADCn is the selected ADC from the ADC peripherals.
+ * @retval The internal voltage reference calibration value between 0 and 0x7F
+ ************************************************************************************************************/
+u8 ADC_GetVoltageReferenceValue(HT_ADC_TypeDef* HT_ADCn)
+{
+  /* Check the parameters                                                                                   */
+  Assert_Param(IS_ADC(HT_ADCn));
+
+  return (u8)(HT_ADCn->VREFVALR & ADC_VREFVALR_MASK);
+}
 
 #if (LIBCFG_ADC_MVDDA)
 /*********************************************************************************************************//**
