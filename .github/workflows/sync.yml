@@ -41,13 +41,15 @@ jobs:
         run: |
           set -e
 
-          # 1. 決定目標 Tag（優先使用 Release 事件的 Tag，否則取最新 Tag）
           TAG_NAME="$GH_EVENT_TAG"
-          if [ -z "$TAG_NAME" ] \vert{}\vert{} [ "$TAG_NAME" = "null" ]; then
+          if [[ -z "$TAG_NAME" || "$TAG_NAME" == "null" ]]; then
+            git fetch --tags --force 2>/dev/null || true
             TAG_NAME=$(git describe --tags --abbrev=0 2>/dev/null || true)
           fi
 
-          if [ -z "$TAG_NAME" ]; then
+          echo "🔍 偵測到要同步的 Tag 為: ${TAG_NAME:-無}"
+
+          if [[ -z "$TAG_NAME" ]]; then
             echo "⚠️ 找不到任何 Git Tag，略過 Release 同步。"
             exit 0
           fi
