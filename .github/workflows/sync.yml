@@ -41,6 +41,7 @@ jobs:
         run: |
           set -e
 
+          # 1. 決定目標 Tag（優先使用 Release 事件的 Tag，否則取最新 Tag）
           TAG_NAME="$GH_EVENT_TAG"
           if [[ -z "$TAG_NAME" || "$TAG_NAME" == "null" ]]; then
             git fetch --tags --force 2>/dev/null || true
@@ -53,7 +54,6 @@ jobs:
             echo "⚠️ 找不到任何 Git Tag，略過 Release 同步。"
             exit 0
           fi
-          echo "🔍 目標同步 Tag: $TAG_NAME"
 
           # 2. 從 GitHub API 取得該 Tag 完整的 Release 資訊（含標題、說明、附件列表）
           GH_API_URL="https://api.github.com/repos/${GH_REPO}/releases/tags/${TAG_NAME}"
@@ -65,7 +65,7 @@ jobs:
           GH_STATUS=$(echo "$GH_RESPONSE" | grep "HTTP_STATUS" | cut -d':' -f2)
           GH_BODY=$(echo "$GH_RESPONSE" | sed '/HTTP_STATUS/d')
 
-          if [ "$GH_STATUS" != "200" ]; then
+          if [[ "$GH_STATUS" != "200" ]]; then
             echo "⚠️ GitHub 上找不到對應 Tag ($TAG_NAME) 的正式 Release（狀態碼: $GH_STATUS），略過同步。"
             exit 0
           fi
@@ -81,10 +81,10 @@ jobs:
           EXISTING_JSON=$(curl -s "${GITEE_BASE_API}/tags/${TAG_NAME}?access_token=${GITEE_TOKEN}")
           EXISTING_ID=$(echo "$EXISTING_JSON" | jq -r '.id // empty')
 
-          if [ -n "$EXISTING_ID" ]; then
+          if [[ -n "$EXISTING_ID" ]]; then
             echo "🗑️ 發現 Gitee 已存在舊 Release (ID: $EXISTING_ID)，正在刪除..."
             DEL_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "${GITEE_BASE_API}/${EXISTING_ID}?access_token=${GITEE_TOKEN}")
-            if [ "$DEL_STATUS" = "204" ] \vert{}\vert{} [ "$DEL_STATUS" = "200" ]; then
+            if [[ "$DEL_STATUS" == "204" || "$DEL_STATUS" == "200" ]]; then
               echo "✅ 舊 Release 已刪除。"
             else
               echo "❌ 刪除舊 Release 失敗 (HTTP $DEL_STATUS)"
@@ -117,8 +117,8 @@ jobs:
           CREATE_STATUS=$(echo "$CREATE_RES" | grep "HTTP_STATUS" | cut -d':' -f2)
           CREATE_BODY=$(echo "$CREATE_RES" | sed '/HTTP_STATUS/d')
 
-          if [ "$CREATE_STATUS" != "201" ]; then
-            echo "❌ 建立 Gitee Release 失敗 (HTTP $CREATE_STATUS):$CREATE_BODY"
+          if [[ "$CREATE_STATUS" != "201" ]]; then
+            echo "❌ 建立 Gitee Release 失敗 (HTTP $CREATE_STATUS): $CREATE_BODY"
             exit 1
           fi
 
@@ -127,15 +127,33 @@ jobs:
 
           # 5. 下載並上傳所有 GitHub Release 附件（Assets）至 Gitee
           ASSET_COUNT=$(echo "$GH_BODY" | jq '.assets | length')
-          if [ "$ASSET_COUNT" -gt 0 ]; then
+          if [[ "$ASSET_COUNT" -gt 0 ]]; then
             echo "📦 偵測到 $ASSET_COUNT 個附件，開始同步上傳..."
             mkdir -p /tmp/gh_assets
 
-            for i in $(seq 0$((ASSET_COUNT - 1))); do
-              ASSET_NAME=$(echo "$GH_BODY" \vert{} jq -r ".assets[$i].name")
-              ASSET_API_URL=$(echo "$GH_BODY" \vert{} jq -r ".assets[$i].url")
+            for i in $(seq 0 $((ASSET_COUNT - 1))); do
+              ASSET_NAME=$(echo "$GH_BODY" | jq -r ".assets[$i].name")
+              ASSET_API_URL=$(echo "$GH_BODY" | jq -r ".assets[$i].url")
 
               echo "⬇️ 下載附件: $ASSET_NAME"
               curl -sL \
                 -H "Authorization: Bearer ${GITHUB_TOKEN}" \
                 -H "Accept: application/octet-stream" \
+                "$ASSET_API_URL" -o "/tmp/gh_assets/${ASSET_NAME}"
+
+              echo "⬆️ 上傳至 Gitee: $ASSET_NAME"
+              UP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+                "${GITEE_BASE_API}/${NEW_RELEASE_ID}/attach_files" \
+                -F "access_token=${GITEE_TOKEN}" \
+                -F "file=@/tmp/gh_assets/${ASSET_NAME}")
+
+              if [[ "$UP_STATUS" == "201" || "$UP_STATUS" == "200" ]]; then
+                echo "✅ 附件 $ASSET_NAME 上傳成功！"
+              else
+                echo "❌ 附件 $ASSET_NAME 上傳失敗 (HTTP $UP_STATUS)"
+                exit 1
+              fi
+            done
+          fi
+
+          echo "🎉 全部同步完成！"
